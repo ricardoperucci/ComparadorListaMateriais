@@ -20,6 +20,8 @@ namespace ComparadorListasDeMateriais
         {
             resultado = "";
 
+
+
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais1 = CriaObjetosComparacaoLista(pCaminho1);
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais2 = CriaObjetosComparacaoLista(pCaminho2);
 
