@@ -17,11 +17,11 @@ namespace ComparadorListasDeMateriais
 
         public static int _primeiraLinhaMelhoriaExcel = 8;
 
-        public static string _tituloErroEstruturaSoNa1 = "Estruturas que estão na Lista 1 e não foram encontradas na Lista 2:";
-        public static string _tituloErroEstruturaSoNa2 = "Estruturas que estão na Lista 2 e não foram encontradas na Lista 1:";
+        public static string _tituloErroEstruturaSoNa1 = "Estruturas que estão na Lista Original e não foram encontradas na Lista Nova:";
+        public static string _tituloErroEstruturaSoNa2 = "Estruturas que estão na Lista Nova e não foram encontradas na Lista Original:";
 
-        public static string _tituloPosicoesSoNa1 = "Posições que estão na Lista 1 e não estão na Lista 2";
-        public static string _tituloPosicoesSoNa2 = "Posições que estão na Lista 2 e não estão na Lista 1";
+        public static string _tituloPosicoesSoNa1 = "Posições que estão na Lista Original e não estão na Lista Nova";
+        public static string _tituloPosicoesSoNa2 = "Posições que estão na Lista Nova e não estão na Lista Original";
 
         public static string _prefixoErroEstrutura = "ENE_";
 
@@ -415,7 +415,7 @@ namespace ComparadorListasDeMateriais
 
                     string posErro = _prefixoErroEstrutura + CorrigeZerosPrefixo(numErro);
 
-                    string erro = string.Format("Est. {0} só na L1", linha.Replace("   ","").Replace("•",""));
+                    string erro = string.Format("Est. {0} só na LisOrig", linha.Replace("   ","").Replace("•",""));
 
                     dicErrosEstrutura.Add(posErro, new List<string> { erro });
 
@@ -431,7 +431,7 @@ namespace ComparadorListasDeMateriais
                     }
                     string posErro = _prefixoErroEstrutura + CorrigeZerosPrefixo(numErro);
 
-                    string erro = string.Format("Est. {0} só na L2", linha.Replace("   ", "").Replace("•", ""));
+                    string erro = string.Format("Est. {0} só na LisNova", linha.Replace("   ", "").Replace("•", ""));
 
                     dicErrosEstrutura.Add(posErro, new List<string> { erro });
 
@@ -457,7 +457,7 @@ namespace ComparadorListasDeMateriais
 
                     foreach(var pos in posicoes)
                     {
-                        dicErrosPosicoes.Add(pos, new List<string> { string.Format(erroSoNaLista, 1) });
+                        dicErrosPosicoes.Add(pos, new List<string> { string.Format(erroSoNaLista, "Original") });
                     }
                 }
 
@@ -467,7 +467,7 @@ namespace ComparadorListasDeMateriais
 
                     foreach (var pos in posicoes)
                     {
-                        dicErrosPosicoes.Add(pos, new List<string> { string.Format(erroSoNaLista, 2) });
+                        dicErrosPosicoes.Add(pos, new List<string> { string.Format(erroSoNaLista, "Nova") });
                     }
                 }
             }

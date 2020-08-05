@@ -50,7 +50,7 @@
             this.buttonArquivo1.Name = "buttonArquivo1";
             this.buttonArquivo1.Size = new System.Drawing.Size(163, 23);
             this.buttonArquivo1.TabIndex = 0;
-            this.buttonArquivo1.Text = "Selecione a Lista 1";
+            this.buttonArquivo1.Text = "Selecione a Lista Original";
             this.buttonArquivo1.UseVisualStyleBackColor = true;
             this.buttonArquivo1.Click += new System.EventHandler(this.buttonArquivo1_Click);
             // 
@@ -60,7 +60,7 @@
             this.buttonArquivo2.Name = "buttonArquivo2";
             this.buttonArquivo2.Size = new System.Drawing.Size(163, 23);
             this.buttonArquivo2.TabIndex = 1;
-            this.buttonArquivo2.Text = "Selecione a Lista 2";
+            this.buttonArquivo2.Text = "Selecione a Lista Nova";
             this.buttonArquivo2.UseVisualStyleBackColor = true;
             this.buttonArquivo2.Click += new System.EventHandler(this.buttonArquivo2_Click);
             // 
