@@ -109,7 +109,7 @@ namespace ComparadorListasDeMateriais.ObjetosLista
 
             this.NumeracaoConjuntoSoldado = pLinhaExcel[0];
 
-            this.Comprimento = System.Convert.ToDouble(pLinhaExcel[6].Replace(",", "."));
+            this.Comprimento = string.IsNullOrEmpty(pLinhaExcel[6]) ? 0 : System.Convert.ToDouble(pLinhaExcel[6].Replace(",", "."));
 
             this.SiglaMaterial = pLinhaExcel[5];
 

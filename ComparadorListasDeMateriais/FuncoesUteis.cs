@@ -75,19 +75,22 @@ namespace ComparadorListasDeMateriais
             for (int i = 0; i < pListaLinhasListaMateriais.Count; i++)
             {
                 List<string> objetoLista = pListaLinhasListaMateriais[i];
-
+               
                 if (i > 10 && pListaLinhasListaMateriais[i - 4][0].Equals("L I S T A   D E   M A T E R I A I S") && pListaLinhasListaMateriais[i + 1][0].Contains("Conj. Soldado"))
                 {
                     estruturaVigenteLista = objetoLista[0];
                 }
 
-                if (objetoLista.Count < 9 || string.IsNullOrEmpty(objetoLista[1]) || string.IsNullOrEmpty(objetoLista[4]) || string.IsNullOrEmpty(objetoLista[6]) || string.IsNullOrEmpty(objetoLista[7]) || string.IsNullOrEmpty(objetoLista[8]))
+                bool eCalota = objetoLista[4].ToLower().Contains("calota") || (objetoLista[4].Contains("d") && objetoLista[4].Contains("r"));
+
+                if (objetoLista.Count < 9 || string.IsNullOrEmpty(objetoLista[1]) || string.IsNullOrEmpty(objetoLista[4]) || (!eCalota && string.IsNullOrEmpty(objetoLista[6])) || string.IsNullOrEmpty(objetoLista[7]) || string.IsNullOrEmpty(objetoLista[8]))
                 {
                     continue;
                 }
 
                 string posicao = objetoLista[1].ToString().Split(new string[] { ".0" }, StringSplitOptions.RemoveEmptyEntries).First().Split(new string[] { ",0" }, StringSplitOptions.RemoveEmptyEntries).First().Replace(" ", "");
 
+                
                 string posicaoSemMaterial = posicao.Last().Equals('H') || posicao.Last().Equals('G') || posicao.Last().Equals('h') || posicao.Last().Equals('g') ? posicao.Remove(posicao.Count() - 1) : posicao;
 
                 //posicaoStringNumero so serve pra testar converter pra double no try e garantir que é uma linha de uma peça na lista
