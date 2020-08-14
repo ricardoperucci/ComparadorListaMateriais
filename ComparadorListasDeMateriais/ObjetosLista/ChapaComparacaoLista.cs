@@ -60,6 +60,8 @@ namespace ComparadorListasDeMateriais.ObjetosLista
             this.SalvarSiglaMaterial(perfilSplit[0].ToLower().Replace("c", ""));
 
             this.Espessura = System.Convert.ToDouble(perfilSplit[0].ToLower().Replace(this.SiglaMaterial.ToLower(), "").Replace("c", "").Replace(",", "."));
+            
+            this.AtualizarSiglaMaterialChapasTxt(perfilSplit[0].ToLower().Replace("c", ""));
 
             if (perfil.Contains("/") && perfil.Contains("r"))
             {
@@ -182,6 +184,18 @@ namespace ComparadorListasDeMateriais.ObjetosLista
             catch
             {
                 this.RaioUsinagemCalota = 0;
+            }
+        }
+
+        /// <summary>
+        /// Atualiza a sigla de material das chapas tratando A36 ou SAE1020
+        /// </summary>
+        /// <param name="pParteEspessura"></param>
+        private void AtualizarSiglaMaterialChapasTxt(string pParteEspessura)
+        {
+            if (this.SiglaMaterial.Equals("S") && this.Espessura < 3.2)
+            {
+                this.SiglaMaterial = "G";    
             }
         }
     }

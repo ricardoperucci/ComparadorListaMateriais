@@ -149,6 +149,10 @@ namespace ComparadorListasDeMateriais.ObjetosLista
             return;
         }
 
+        /// <summary>
+        /// Salva a sigla do material
+        /// </summary>
+        /// <param name="pParteEspessura"></param>
         protected void SalvarSiglaMaterial(string pParteEspessura)
         {
             if (pParteEspessura.ToLower().Contains("h"))
@@ -168,7 +172,5 @@ namespace ComparadorListasDeMateriais.ObjetosLista
                 this.SiglaMaterial = "G";
             }
         }
-
-
     }
 }
