@@ -273,7 +273,7 @@ namespace ComparadorListasDeMateriais
         {
             //object[][] saida = new object[3][] { new string[2] { "A", "B" }, new string[2] { "C", "D" }, new string[2] { "E", "F" } };
 
-            string nomeComExt = pNomeArquivo + ".xlsx";
+            string nomeComExt = pNomeArquivo;
 
             Stream k = GetResourceFileStream("Template");
             using (var fileStream = File.Create(nomeComExt))

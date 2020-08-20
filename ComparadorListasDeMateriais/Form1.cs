@@ -20,8 +20,8 @@ namespace ComparadorListasDeMateriais
 
         private string nomeArquivoResultado;
 
-        private bool salvarTxt;
-        private bool salvarExcel;
+        private bool salvarTxt = false;
+        private bool salvarExcel = true;
 
         public Form1()
         {
@@ -49,20 +49,18 @@ namespace ComparadorListasDeMateriais
 
             comp.CompararListas(caminhoArquivo1, caminhoArquivo2, out string resultado);
 
-            string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado;
+            string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado + ".xlsx";
 
             List<string> caminhos = new List<string>();
-            if (salvarTxt)
-            {
-                FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
-            }
-            if (salvarExcel)
-            {
-                FuncoesUteis.EscreveExcel(arquivoResultado, resultado);
-            }
+            //if (salvarTxt)
+            //{
+            //    FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
+            //}
+            
+            FuncoesUteis.EscreveExcel(arquivoResultado, resultado);
 
-            if(salvarTxt || salvarExcel)
-                MessageBox.Show(string.Format("Resultado salvo em {0}", caminhoSalvarResultado));
+            if (salvarTxt || salvarExcel)
+                MessageBox.Show(string.Format("Resultado salvo em {0}", arquivoResultado));
         }
 
         private string SelecionaArquivo()
@@ -99,14 +97,14 @@ namespace ComparadorListasDeMateriais
             nomeArquivoResultado = textBoxNomeResult.Text;
         }
 
-        private void checkBoxTxt_CheckedChanged(object sender, EventArgs e)
-        {
-            salvarTxt = checkBoxTxt.Checked;
-        }
+        //private void checkBoxTxt_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    salvarTxt = checkBoxTxt.Checked;
+        //}
 
-        private void checkBoxExcel_CheckedChanged(object sender, EventArgs e)
-        {
-            salvarExcel = checkBoxExcel.Checked;
-        }
+        //private void checkBoxExcel_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    salvarExcel = checkBoxExcel.Checked;
+        //}
     }
 }

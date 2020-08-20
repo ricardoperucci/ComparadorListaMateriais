@@ -39,8 +39,8 @@
             this.textBoxNomeResult = new System.Windows.Forms.TextBox();
             this.labelTextResult = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.checkBoxTxt = new System.Windows.Forms.CheckBox();
-            this.checkBoxExcel = new System.Windows.Forms.CheckBox();
+            //this.checkBoxTxt = new System.Windows.Forms.CheckBox();
+            //this.checkBoxExcel = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -155,25 +155,25 @@
             // 
             // checkBoxTxt
             // 
-            this.checkBoxTxt.AutoSize = true;
-            this.checkBoxTxt.Location = new System.Drawing.Point(619, 180);
-            this.checkBoxTxt.Name = "checkBoxTxt";
-            this.checkBoxTxt.Size = new System.Drawing.Size(133, 17);
-            this.checkBoxTxt.TabIndex = 13;
-            this.checkBoxTxt.Text = "Salvar resultado em txt";
-            this.checkBoxTxt.UseVisualStyleBackColor = true;
-            this.checkBoxTxt.CheckedChanged += new System.EventHandler(this.checkBoxTxt_CheckedChanged);
-            // 
-            // checkBoxExcel
-            // 
-            this.checkBoxExcel.AutoSize = true;
-            this.checkBoxExcel.Location = new System.Drawing.Point(619, 207);
-            this.checkBoxExcel.Name = "checkBoxExcel";
-            this.checkBoxExcel.Size = new System.Drawing.Size(147, 17);
-            this.checkBoxExcel.TabIndex = 14;
-            this.checkBoxExcel.Text = "Salvar resultado em excel";
-            this.checkBoxExcel.UseVisualStyleBackColor = true;
-            this.checkBoxExcel.CheckedChanged += new System.EventHandler(this.checkBoxExcel_CheckedChanged);
+            //this.checkBoxTxt.AutoSize = true;
+            //this.checkBoxTxt.Location = new System.Drawing.Point(619, 180);
+            //this.checkBoxTxt.Name = "checkBoxTxt";
+            //this.checkBoxTxt.Size = new System.Drawing.Size(133, 17);
+            //this.checkBoxTxt.TabIndex = 13;
+            //this.checkBoxTxt.Text = "Salvar resultado em txt";
+            //this.checkBoxTxt.UseVisualStyleBackColor = true;
+            //this.checkBoxTxt.CheckedChanged += new System.EventHandler(this.checkBoxTxt_CheckedChanged);
+            //// 
+            //// checkBoxExcel
+            //// 
+            //this.checkBoxExcel.AutoSize = true;
+            //this.checkBoxExcel.Location = new System.Drawing.Point(619, 207);
+            //this.checkBoxExcel.Name = "checkBoxExcel";
+            //this.checkBoxExcel.Size = new System.Drawing.Size(147, 17);
+            //this.checkBoxExcel.TabIndex = 14;
+            //this.checkBoxExcel.Text = "Salvar resultado em excel";
+            //this.checkBoxExcel.UseVisualStyleBackColor = true;
+            //this.checkBoxExcel.CheckedChanged += new System.EventHandler(this.checkBoxExcel_CheckedChanged);
             // 
             // Form1
             // 
@@ -183,8 +183,8 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(798, 372);
-            this.Controls.Add(this.checkBoxExcel);
-            this.Controls.Add(this.checkBoxTxt);
+            //this.Controls.Add(this.checkBoxExcel);
+            //this.Controls.Add(this.checkBoxTxt);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.labelTextResult);
             this.Controls.Add(this.textBoxNomeResult);
@@ -220,8 +220,8 @@
         private System.Windows.Forms.TextBox textBoxNomeResult;
         private System.Windows.Forms.Label labelTextResult;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.CheckBox checkBoxTxt;
-        private System.Windows.Forms.CheckBox checkBoxExcel;
+        //private System.Windows.Forms.CheckBox checkBoxTxt;
+        //private System.Windows.Forms.CheckBox checkBoxExcel;
     }
 }
 
