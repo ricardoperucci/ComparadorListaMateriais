@@ -49,15 +49,15 @@ namespace ComparadorListasDeMateriais
 
             comp.CompararListas(caminhoArquivo1, caminhoArquivo2, out string resultado);
 
-            string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado + ".xlsx";
+            string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado;
 
             List<string> caminhos = new List<string>();
-            //if (salvarTxt)
-            //{
-            //    FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
-            //}
-            
-            FuncoesUteis.EscreveExcel(arquivoResultado, resultado);
+
+            if (salvarTxt)
+                FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
+
+            if (salvarExcel)
+                FuncoesUteis.EscreveExcel(arquivoResultado + ".xlsx", resultado);
 
             if (salvarTxt || salvarExcel)
                 MessageBox.Show(string.Format("Resultado salvo em {0}", arquivoResultado));
@@ -97,14 +97,14 @@ namespace ComparadorListasDeMateriais
             nomeArquivoResultado = textBoxNomeResult.Text;
         }
 
-        //private void checkBoxTxt_CheckedChanged(object sender, EventArgs e)
-        //{
-        //    salvarTxt = checkBoxTxt.Checked;
-        //}
+        private void checkBoxTxt_CheckedChanged(object sender, EventArgs e)
+        {
+            salvarTxt = checkBoxTxt.Checked;
+        }
 
-        //private void checkBoxExcel_CheckedChanged(object sender, EventArgs e)
-        //{
-        //    salvarExcel = checkBoxExcel.Checked;
-        //}
+        private void checkBoxExcel_CheckedChanged(object sender, EventArgs e)
+        {
+            salvarExcel = checkBoxExcel.Checked;
+        }
     }
 }
