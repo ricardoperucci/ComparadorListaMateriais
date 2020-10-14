@@ -15,7 +15,7 @@ namespace ComparadorListasDeMateriais
 
         public static int _primeiraLinhaNCExcel = 21;
 
-        public static int _primeiraLinhaMelhoriaExcel = 8;
+        public static int _primeiraLinhaMelhoriaExcel = 21;
 
         public static string _tituloErroEstruturaSoNa1 = "Estruturas que estão na Lista Original e não foram encontradas na Lista Nova:";
         public static string _tituloErroEstruturaSoNa2 = "Estruturas que estão na Lista Nova e não foram encontradas na Lista Original:";
@@ -290,14 +290,14 @@ namespace ComparadorListasDeMateriais
             //dados = lista de listas onde cada lista é uma linha
             var dados = abaNcs.Data;
             //aba.WriteData(0, 0, saida);
-            EscreveDivergenciasExcel(abaNcs, ListaNCsMelhoriasPosicao(pResultadoComparacao, true), _primeiraLinhaNCExcel);
+            EscreveDivergenciasExcel(abaNcs, ListaNCsMelhoriasPosicao(pResultadoComparacao, true), _primeiraLinhaNCExcel, true);
 
-            EscreveDivergenciasExcel(abaMelhorias, ListaNCsMelhoriasPosicao(pResultadoComparacao, false), _primeiraLinhaMelhoriaExcel);
+            EscreveDivergenciasExcel(abaMelhorias, ListaNCsMelhoriasPosicao(pResultadoComparacao, false), _primeiraLinhaMelhoriaExcel, false);
 
             wb.Save();
         }
 
-        public static void EscreveDivergenciasExcel(WorkSheet pAbaNcs, Dictionary<string, List<string>> pErrosPorPosicao, int pIndexPrimeiraLinha)
+        public static void EscreveDivergenciasExcel(WorkSheet pAbaNcs, Dictionary<string, List<string>> pErrosPorPosicao, int pIndexPrimeiraLinha, bool pNCOuMelhoria)
         {
             List<string[]> listaTextosLinhas = new List<string[]>();
 
@@ -313,7 +313,7 @@ namespace ComparadorListasDeMateriais
 
                 listaTextosLinhas.Add(linha.ToArray());
             }
-            if(pIndexPrimeiraLinha == _primeiraLinhaNCExcel)
+            if(pNCOuMelhoria)
             {
                 pAbaNcs.WriteData(pIndexPrimeiraLinha, 2, listaTextosLinhas.ToArray());
             }
