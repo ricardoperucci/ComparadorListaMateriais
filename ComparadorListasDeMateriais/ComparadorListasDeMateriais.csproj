@@ -81,10 +81,16 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="FuncoesUteis.cs" />
+    <Compile Include="ObjetosResultados\EnumErrosPosicao.cs" />
+    <Compile Include="ObjetosResultados\ErroPosicao.cs" />
+    <Compile Include="ObjetosResultados\EstruturaComparacao.cs" />
+    <Compile Include="ObjetosResultados\ObjetoCabecalho.cs" />
+    <Compile Include="ObjetosResultados\ObjetoResultadoComparacao.cs" />
     <Compile Include="ObjetosLista\CantoneiraComparacaoLista.cs" />
     <Compile Include="ObjetosLista\ChapaComparacaoLista.cs" />
     <Compile Include="ObjetosLista\ObjetoComparacaoLista.cs" />
     <Compile Include="ObjetosLista\ParafusoComparacaoLista.cs" />
+    <Compile Include="ObjetosResultados\PosicaoComparacao.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -147,5 +153,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

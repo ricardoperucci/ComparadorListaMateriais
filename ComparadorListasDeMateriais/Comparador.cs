@@ -38,7 +38,7 @@ namespace ComparadorListasDeMateriais
             strBuilder.AppendLine(horario);
             strBuilder.AppendLine();
 
-            List<string> estruturasComuns = EstruturasComuns(listaMateriais1, listaMateriais2, out var soNa1, out var soNa2);
+            List<string> estruturasComuns = EstruturasComuns(listaMateriais1, listaMateriais2, out List<string> soNa1, out List<string> soNa2);
 
             foreach(string estrutura in estruturasComuns)
             {
