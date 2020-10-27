@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ComparadorListasDeMateriais.ObjetosResultados;
+using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -87,13 +89,13 @@ namespace ComparadorListasDeMateriais.ObjetosLista
         /// </summary>
         /// <param name="pOutro"></param>
         /// <returns></returns>
-        public override List<string> CompararComObjeto(ObjetoComparacaoLista pOutro)
+        public override List<ErroPosicao> CompararComObjeto(ObjetoComparacaoLista pOutro)
         {
-            List<string> diferencas = new List<string>();
+            List<ErroPosicao> diferencas = new List<ErroPosicao>();
 
             if (pOutro is CantoneiraComparacaoLista)
             {
-                diferencas.Add("Objetos diferentes cantoneira/chapa");
+                diferencas.Add(new DivergenciaPecasTipo());
             }
             else
             {
@@ -105,17 +107,17 @@ namespace ComparadorListasDeMateriais.ObjetosLista
                 {
                     if (Math.Abs(this.DiametroCalota - outraChapaComparacao.DiametroCalota) > 0.1)
                     {
-                        diferencas.Add(string.Format("DiametroCalota: {0}mm => {1}/{2}", (outraChapaComparacao.DiametroCalota - this.DiametroCalota), this.DiametroCalota, outraChapaComparacao.DiametroCalota));
+                        diferencas.Add(new DivergenciaDiametroCalota(this.DiametroCalota, outraChapaComparacao.DiametroCalota));
                     }
 
                     if (Math.Abs(this.DiametroFuroCalota - outraChapaComparacao.DiametroFuroCalota) > 0.1)
                     {
-                        diferencas.Add(string.Format("DiametroFuroCalota: {0}mm => {1}/{2}", (outraChapaComparacao.DiametroFuroCalota - this.DiametroFuroCalota), this.DiametroFuroCalota, outraChapaComparacao.DiametroFuroCalota));
+                        diferencas.Add(new DivergenciaFuroCalota(this.DiametroFuroCalota, outraChapaComparacao.DiametroFuroCalota));
                     }
 
                     if (Math.Abs(this.RaioUsinagemCalota - outraChapaComparacao.RaioUsinagemCalota) > 0.1)
                     {
-                        diferencas.Add(string.Format("RaioUsinagemCalota: {0}mm => {1}/{2}", (outraChapaComparacao.RaioUsinagemCalota - this.RaioUsinagemCalota), this.RaioUsinagemCalota, outraChapaComparacao.RaioUsinagemCalota));
+                        diferencas.Add(new DivergenciaRaioUsinagemCalota(this.RaioUsinagemCalota, outraChapaComparacao.RaioUsinagemCalota));
                     }
                 }
 
@@ -123,12 +125,12 @@ namespace ComparadorListasDeMateriais.ObjetosLista
                 {
                     if (Math.Abs(this.Largura - outraChapaComparacao.Largura) > 0.1)
                     {
-                        diferencas.Add(string.Format("Largura: {0}mm => {1}/{2}", (outraChapaComparacao.Largura - this.Largura), this.Largura, outraChapaComparacao.Largura));
+                        diferencas.Add(new DivergenciaLargura(this.Largura, outraChapaComparacao.Largura));
                     }
 
                     if (Math.Abs(this.Espessura - pOutro.Espessura) > 0.1)
                     {
-                        diferencas.Add(string.Format("Espessura: {0}mm => {1}/{2}", (outraChapaComparacao.Espessura - this.Espessura), this.Espessura, outraChapaComparacao.Espessura));
+                        diferencas.Add(new DivergenciaEspessura(this.Espessura, outraChapaComparacao.Espessura));
                     }
                 }
             }

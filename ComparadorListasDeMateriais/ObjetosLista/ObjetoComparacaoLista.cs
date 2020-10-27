@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ComparadorListasDeMateriais.ObjetosResultados;
+using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,55 +41,58 @@ namespace ComparadorListasDeMateriais.ObjetosLista
 
         }
 
-        public abstract List<string> CompararComObjeto(ObjetoComparacaoLista pOutro);
+        public abstract List<ErroPosicao> CompararComObjeto(ObjetoComparacaoLista pOutro);
 
-        protected  List<string> CompararObjeto(ObjetoComparacaoLista pOutro)
+        protected  List<ErroPosicao> CompararObjeto(ObjetoComparacaoLista pOutro)
         {
-            List<string> diferencas = new List<string>();
+            List<ErroPosicao> diferencas = new List<ErroPosicao>();
 
-            if (Math.Abs(this.Comprimento - pOutro.Comprimento) > 0.1)
+            double deltaComprimento = Math.Abs(this.Comprimento - pOutro.Comprimento);
+            if (deltaComprimento > 0.1)
             {
-                diferencas.Add(string.Format("Comprimento: {0}mm => {1}/{2}", (pOutro.Comprimento - this.Comprimento), this.Comprimento, pOutro.Comprimento));
+                bool ncMelhoria = deltaComprimento > 2;
+
+                diferencas.Add(new DivergenciaComprimento(this.Comprimento, pOutro.Comprimento));
             }
 
             if (this.SiglaMaterial != pOutro.SiglaMaterial)
             {
-                diferencas.Add("Material");
+                diferencas.Add(new DivergenciaMaterial());
             }
 
             if (this.QuantidadePecasNoComponente != pOutro.QuantidadePecasNoComponente)
             {
-                diferencas.Add(string.Format("Quantidade: {0}/{1}", this.QuantidadePecasNoComponente, pOutro.QuantidadePecasNoComponente));
+                diferencas.Add(new DivergenciaQuantidadePecas(this.QuantidadePecasNoComponente, pOutro.QuantidadePecasNoComponente));
             }
 
             if (this.QuantidadeRecortes != pOutro.QuantidadeRecortes)
             {
-                diferencas.Add(string.Format("Recortes: {0}/{1}", this.QuantidadeRecortes, pOutro.QuantidadeRecortes));
+                diferencas.Add(new DivergenciaQuantidadeRecortes(this.QuantidadeRecortes, pOutro.QuantidadeRecortes));
             }
 
             if (this.QuantidadeDobras != pOutro.QuantidadeDobras)
             {
-                diferencas.Add(string.Format("Dobras: {0}/{1}", this.QuantidadeDobras, pOutro.QuantidadeDobras));
+                diferencas.Add(new DivergenciaQuantidadeDobras(this.QuantidadeDobras, pOutro.QuantidadeDobras));
             }
 
             if (this.QuantidadeChanfros != pOutro.QuantidadeChanfros)
             {
-                diferencas.Add(string.Format("Chanfros: {0}/{1}", this.QuantidadeChanfros, pOutro.QuantidadeChanfros));
+                diferencas.Add(new DivergenciaQuantidadeChanfros(this.QuantidadeChanfros, pOutro.QuantidadeChanfros));
             }
 
             if (this.TemDegrau != pOutro.TemDegrau)
             {
-                diferencas.Add(string.Format("Parafuso Degrau"));
+                diferencas.Add(new DivergenciaDegrau(this.TemDegrau, pOutro.TemDegrau));
             }
 
             if (this.NumeracaoDireitaComSigla != pOutro.NumeracaoDireitaComSigla)
             {
-                diferencas.Add(string.Format("Peça direita"));
+                diferencas.Add(new DivergenciaEsquerda(this.NumeracaoDireitaComSigla, pOutro.NumeracaoDireitaComSigla));
             }
 
             if (this.NumeracaoConjuntoSoldado != pOutro.NumeracaoConjuntoSoldado)
             {
-                diferencas.Add(string.Format("Conjunto Soldado"));
+                diferencas.Add(new DivergenciaConjuntoSoldado(this.NumeracaoConjuntoSoldado, pOutro.NumeracaoConjuntoSoldado));
             }
 
             return diferencas;

@@ -15,6 +15,12 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
 
         public List<PosicaoComparacao> ListaPosicoesComErros { get; set; }
 
+        public EstruturaComparacao()
+        {
+            this.PosicoesSomenteListaOriginal = new List<string>();
+            this.PosicoesSomenteListaNova = new List<string>();
 
+            this.ListaPosicoesComErros = new List<PosicaoComparacao>();
+        }
     }
 }

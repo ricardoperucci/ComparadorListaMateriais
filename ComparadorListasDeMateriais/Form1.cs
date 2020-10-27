@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComparadorListasDeMateriais.ObjetosResultados;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -47,7 +48,7 @@ namespace ComparadorListasDeMateriais
         {
             Comparador comp = new Comparador();
 
-            comp.CompararListas(caminhoArquivo1, caminhoArquivo2, out string resultado);
+            comp.CompararListas(caminhoArquivo1, caminhoArquivo2, out ObjetoResultadoComparacao resultado);
 
             string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado;
 

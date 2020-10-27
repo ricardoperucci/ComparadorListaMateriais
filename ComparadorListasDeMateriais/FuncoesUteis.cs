@@ -1,4 +1,5 @@
 ﻿using ComparadorListasDeMateriais.ObjetosLista;
+using ComparadorListasDeMateriais.ObjetosResultados;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -269,7 +270,7 @@ namespace ComparadorListasDeMateriais
             return saida;
         }
 
-        public static void EscreveExcel(string pNomeArquivo, string pResultadoComparacao)
+        public static void EscreveExcel(string pNomeArquivo, ObjetoResultadoComparacao pResultadoComparacao)
         {
             //object[][] saida = new object[3][] { new string[2] { "A", "B" }, new string[2] { "C", "D" }, new string[2] { "E", "F" } };
 

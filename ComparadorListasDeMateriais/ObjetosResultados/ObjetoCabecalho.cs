@@ -16,8 +16,11 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
         public string Data { get; set; }
         public string Horario { get; set; }
 
-        public ObjetoCabecalho()
+        public ObjetoCabecalho(string pCaminhoArquivoListaOriginal, string pCaminhoArquivoListaNova)
         {
+            this.CaminhoArquivoListaOriginal = pCaminhoArquivoListaOriginal;
+            this.CaminhoArquivoListaNova = pCaminhoArquivoListaNova;
+
             this.Data = "Data: " + DateTime.Today.Day.ToString() + "/" + (DateTime.Today.Month.ToString().Count() == 1 ? "0" + DateTime.Today.Month.ToString() : DateTime.Today.Month.ToString()) + "/" + DateTime.Today.Year;
             this.Horario = "Horário: " + DateTime.Now.ToLongTimeString();
         }

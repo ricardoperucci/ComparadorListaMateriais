@@ -12,6 +12,14 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
 
         public List<ErroPosicao> ListaErrosPosicao { get; set; }
 
+        public bool TeveErro { get; set; }
+        public bool TeveMelhoria { get; set; }
 
+        public PosicaoComparacao(List<ErroPosicao> pListaDivergencias, string pNumeracao)
+        {
+            this.ListaErrosPosicao = pListaDivergencias;
+
+            this.NumeracaoString = pNumeracao;
+        }
     }
 }

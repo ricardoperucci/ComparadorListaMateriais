@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ComparadorListasDeMateriais.ObjetosResultados;
+using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -62,13 +64,13 @@ namespace ComparadorListasDeMateriais.ObjetosLista
             this.PerfilSimples = string.Format("L{0}x{1}", this.Aba, this.Espessura);
         }
 
-        public override List<string> CompararComObjeto(ObjetoComparacaoLista pOutro)
+        public override List<ErroPosicao> CompararComObjeto(ObjetoComparacaoLista pOutro)
         {
-            List<string> diferencas = new List<string>();
+            List<ErroPosicao> diferencas = new List<ErroPosicao>();
 
             if (pOutro is ChapaComparacaoLista)
             {
-                diferencas.Add("Objetos diferentes cantoneira/chapa");
+                diferencas.Add(new DivergenciaPecasTipo());
             }
             else
             {
@@ -78,7 +80,7 @@ namespace ComparadorListasDeMateriais.ObjetosLista
 
                 if (Math.Abs(this.Aba - outraCantoneiraComparacao.Aba) > 0.1 || Math.Abs(this.Espessura - pOutro.Espessura) > 0.1)
                 {
-                    diferencas.Add(string.Format("Perfil: {0} / {1}", this.PerfilSimples, outraCantoneiraComparacao.PerfilSimples));
+                    diferencas.Add(new DivergenciaPerfilCantoneira(this.PerfilSimples, outraCantoneiraComparacao.PerfilSimples));
                 }
             }
 

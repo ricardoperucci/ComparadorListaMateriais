@@ -13,6 +13,16 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
         public List<string> EstruturasSomenteListaOriginal { get; set; }
         public List<string> EstruturasSomenteListaNova { get; set; }
 
+        public List<EstruturaComparacao> ListaEstruturasComparadas { get; set; }
 
+        public ObjetoResultadoComparacao(ObjetoCabecalho pObjetoCabecalho, List<string> pEstruturasSomenteListaOriginal, List<string> pEstruturasSomenteListaNova)
+        {
+            this.ObjetoCabecalho = pObjetoCabecalho;
+
+            this.ListaEstruturasComparadas = new List<EstruturaComparacao>();
+
+            this.EstruturasSomenteListaOriginal = pEstruturasSomenteListaOriginal;
+            this.EstruturasSomenteListaNova = pEstruturasSomenteListaNova;
+        }
     }
 }

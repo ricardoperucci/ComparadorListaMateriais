@@ -10,64 +10,39 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using ComparadorListasDeMateriais.ObjetosLista;
+using ComparadorListasDeMateriais.ObjetosResultados;
 
 namespace ComparadorListasDeMateriais
 {
     public class Comparador
     {
 
-        public bool CompararListas(string pCaminho1, string pCaminho2, out string resultado)
+        /// <summary>
+        /// Compara as duas listas
+        /// </summary>
+        /// <param name="pCaminho1"></param>
+        /// <param name="pCaminho2"></param>
+        /// <param name="resultado"></param>
+        /// <returns></returns>
+        public bool CompararListas(string pCaminho1, string pCaminho2, out ObjetoResultadoComparacao resultado)
         {
-            resultado = "";
+            ObjetoCabecalho cabecalho = new ObjetoCabecalho(pCaminho1, pCaminho2);
 
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais1 = CriaObjetosComparacaoLista(pCaminho1);
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais2 = CriaObjetosComparacaoLista(pCaminho2);
 
-            StringBuilder strBuilder = new StringBuilder();
-
-            strBuilder.AppendLine("Comparação listas de materiais");
-
-            strBuilder.AppendLine(string.Format("Arquivos: {0} e {1}", pCaminho1.Split('/').Last().Split('\\').Last(), pCaminho2.Split('/').Last().Split('\\').Last()));
-
-            string data = "Data: " + DateTime.Today.Day.ToString() + "/" + (DateTime.Today.Month.ToString().Count() == 1 ? "0" + DateTime.Today.Month.ToString() : DateTime.Today.Month.ToString()) + "/" + DateTime.Today.Year;
-            string horario = "Horário: " + DateTime.Now.ToLongTimeString();
-
-            strBuilder.AppendLine(data);
-            strBuilder.AppendLine();
-
-            strBuilder.AppendLine(horario);
-            strBuilder.AppendLine();
-
             List<string> estruturasComuns = EstruturasComuns(listaMateriais1, listaMateriais2, out List<string> soNa1, out List<string> soNa2);
 
-            foreach(string estrutura in estruturasComuns)
+            resultado = new ObjetoResultadoComparacao(cabecalho, soNa1, soNa2);
+
+            foreach (string estrutura in estruturasComuns)
             {
                 var objeto1 = listaMateriais1.FirstOrDefault(x => FuncoesUteis.ComparaNomeEstruturas(x.Key, estrutura));
 
                 var objeto2 = listaMateriais2.FirstOrDefault(x => FuncoesUteis.ComparaNomeEstruturas(x.Key, estrutura));
 
-                strBuilder.AppendLine(ComparaEstruturaNasListas(objeto1.Value, objeto2.Value, estrutura));
+                resultado.ListaEstruturasComparadas.Add(ComparaEstruturaNasListas(objeto1.Value, objeto2.Value, estrutura));
             }
-
-            if(soNa1.Count > 0)
-            {
-                strBuilder.AppendLine(FuncoesUteis._tituloErroEstruturaSoNa1);
-                foreach(string est in soNa1)
-                {
-                    strBuilder.AppendLine(string.Format("   • {0}", est));
-                }
-            }
-
-            if (soNa2.Count > 0)
-            {
-                strBuilder.AppendLine(FuncoesUteis._tituloErroEstruturaSoNa2);
-                foreach (string est in soNa2)
-                {
-                    strBuilder.AppendLine(string.Format("   • {0}", est));
-                }
-            }
-
-            resultado = strBuilder.ToString();
 
             return true;
         }
@@ -146,123 +121,46 @@ namespace ComparadorListasDeMateriais
             return estruturasComuns;
         }
 
-        public string ComparaEstruturaNasListas(List<ObjetoComparacaoLista> pObjetosLista1, List<ObjetoComparacaoLista> pObjetosLista2, string pEstrutura)
+        /// <summary>
+        /// Compara a estrutura nas duas listas
+        /// </summary>
+        /// <param name="pObjetosLista1"></param>
+        /// <param name="pObjetosLista2"></param>
+        /// <param name="pEstrutura"></param>
+        /// <returns></returns>
+        public EstruturaComparacao ComparaEstruturaNasListas(List<ObjetoComparacaoLista> pObjetosLista1, List<ObjetoComparacaoLista> pObjetosLista2, string pEstrutura)
         {
-            bool teveErro = false;
+            EstruturaComparacao saida = new EstruturaComparacao();
 
-            StringBuilder strBuilder = new StringBuilder();
+            saida.NomeEstruturaSaida = FuncoesUteis.NomeEstruturaMaiusculo(pEstrutura);
 
-            strBuilder.AppendLine(FuncoesUteis.NomeEstruturaMaiusculo(pEstrutura));
-            strBuilder.AppendLine();
+            saida.PosicoesSomenteListaOriginal = pObjetosLista1.Where(x => !pObjetosLista2.Any(y => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial,y.NumeracaoComMaterial))).Select(x => x.NumeracaoComMaterial).ToList();
 
-            List<string> posicoesSomenteNa1 = pObjetosLista1.Where(x => !pObjetosLista2.Any(y => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial,y.NumeracaoComMaterial))).Select(x => x.NumeracaoComMaterial).ToList();
-
-            List<string> posicoesSomenteNa2 = pObjetosLista2.Where(x => !pObjetosLista1.Any(y => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, y.NumeracaoComMaterial))).Select(x => x.NumeracaoComMaterial).ToList();
+            saida.PosicoesSomenteListaNova = pObjetosLista2.Where(x => !pObjetosLista1.Any(y => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, y.NumeracaoComMaterial))).Select(x => x.NumeracaoComMaterial).ToList();
 
             List<string> posicoesNasDuas = pObjetosLista1.Where(x => pObjetosLista2.Any(y => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, y.NumeracaoComMaterial))).Select(x => x.NumeracaoComMaterial).ToList();
-
-            if (posicoesSomenteNa1.Count > 0)
-            {
-                teveErro = true;
-
-                strBuilder.AppendLine(string.Format("   {0}: {1}", FuncoesUteis._tituloPosicoesSoNa1, string.Join(", ", posicoesSomenteNa1)));
-                strBuilder.AppendLine();
-            }
-
-            if (posicoesSomenteNa2.Count > 0)
-            {
-                teveErro = true;
-
-                strBuilder.AppendLine(string.Format("   {0}: {1}", FuncoesUteis._tituloPosicoesSoNa2, string.Join(", ", posicoesSomenteNa2)));
-                strBuilder.AppendLine();
-            }
 
             if (posicoesNasDuas.Count > 0)
             {
                 StringBuilder strDivergenciasEst = new StringBuilder();
                 StringBuilder strMelhoriasEst = new StringBuilder();
-
-                bool teveDivergencia = false;
-                bool teveMelhoria = false;
-
+                
                 foreach (string posicao in posicoesNasDuas)
                 {
                     ObjetoComparacaoLista objetoLista1 = pObjetosLista1.FirstOrDefault(x => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, posicao));
                     ObjetoComparacaoLista objetoLista2 = pObjetosLista2.FirstOrDefault(x => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, posicao));
 
-                    List<string> divergencias = objetoLista1.CompararComObjeto(objetoLista2);
+                    List<ErroPosicao> divergencias = objetoLista1.CompararComObjeto(objetoLista2);
 
                     if(divergencias.Count > 0)
                     {
-
-                        if (FuncoesUteis.VerificaMelhoria(divergencias))
-                        {
-                            teveErro = true;
-                            teveMelhoria = true;
-
-                            for (int i = 0; i < divergencias.Count; i++)
-                            {
-                                string div = divergencias[i];
-                                if (i == 0)
-                                {
-                                    strMelhoriasEst.AppendLine(string.Format("      ${0}: • {1}", posicao, div));
-                                }
-                                else
-                                {
-                                    strMelhoriasEst.AppendLine(string.Format("           @• {0}", div));
-                                }
-                            }
-                        }
-
-                        else
-                        {
-                            teveDivergencia = true;
-
-                            teveErro = true;
-
-                            for (int i = 0; i < divergencias.Count; i++)
-                            {
-                                string div = divergencias[i];
-                                if (i == 0)
-                                {
-                                    strDivergenciasEst.AppendLine(string.Format("      #{0}: • {1}", posicao, div));
-                                }
-                                else
-                                {
-                                    strDivergenciasEst.AppendLine(string.Format("           %• {0}", div));
-                                }
-                            }
-
-                            //strDivergenciasEst.AppendLine();
-                        }
-                        
+                        saida.ListaPosicoesComErros.Add(new PosicaoComparacao(divergencias, posicao));
                     }
                 }
-
-                if (teveDivergencia)
-                {
-                    strBuilder.AppendLine("   Divergências:");
-                    strBuilder.AppendLine();
-                    strBuilder.AppendLine(strDivergenciasEst.ToString());
-                }
-                if (teveMelhoria)
-                {
-                    strBuilder.AppendLine("   Melhorias:");
-                    strBuilder.AppendLine();
-                    strBuilder.AppendLine(strMelhoriasEst.ToString());
-                }
             }
 
-            if (!teveErro)
-            {
-                strBuilder.AppendLine("    Todas as posições na estrutura estão iguais");
-                strBuilder.AppendLine();
-            }
-
-            return strBuilder.ToString();
+            return saida;
         }
-
-        
 
     }
 }
