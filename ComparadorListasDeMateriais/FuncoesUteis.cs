@@ -312,7 +312,7 @@ namespace ComparadorListasDeMateriais
             foreach(EstruturaComparacao estrutura in pResultado.ListaEstruturasComparadas)
             {
                 //string codigoEstrutura = estrutura.NomeEstruturaSaida.Split('-').First();
-                string codigoEstrutura = estrutura.NomeEstruturaSaida.Substring(0, 7);
+                string codigoEstrutura = estrutura.NomeEstruturaSaida;
 
                 foreach(PosicaoComparacao posicao in estrutura.ListaPosicoesComErros)
                 {
@@ -328,6 +328,7 @@ namespace ComparadorListasDeMateriais
 
                         linha.Add(descricaoErro);
 
+                        linha.Add("");
                         linha.Add(codigoEstrutura);
 
                         listaTextosLinhas.Add(linha.ToArray());
@@ -347,6 +348,7 @@ namespace ComparadorListasDeMateriais
 
                         linha.Add(descricaoErro);
 
+                        linha.Add("");
                         linha.Add(codigoEstrutura);
 
                         listaTextosLinhas.Add(linha.ToArray());
@@ -362,6 +364,7 @@ namespace ComparadorListasDeMateriais
 
                         linha.Add(descricaoErro);
 
+                        linha.Add("");
                         linha.Add(codigoEstrutura);
 
                         listaTextosLinhas.Add(linha.ToArray());
@@ -372,6 +375,35 @@ namespace ComparadorListasDeMateriais
 
             if (pNCOuMelhoria)
             {
+                int erro = 1;
+                foreach(string estrutura in pResultado.EstruturasSomenteListaOriginal)
+                {
+                    List<string> linha = new List<string>();
+
+                    linha.Add(string.Format("ENE-{0}", erro));
+                    erro++;
+
+                    string descricaoErro = string.Format("Estrutura {0} não encontrada na lista nova", estrutura);
+
+                    linha.Add(descricaoErro);
+
+                    listaTextosLinhas.Add(linha.ToArray());
+                }
+
+                foreach (string estrutura in pResultado.EstruturasSomenteListaNova)
+                {
+                    List<string> linha = new List<string>();
+
+                    linha.Add(string.Format("ENE-{0}", erro));
+                    erro++;
+
+                    string descricaoErro = string.Format("Estrutura {0} não encontrada na lista original", estrutura);
+
+                    linha.Add(descricaoErro);
+
+                    listaTextosLinhas.Add(linha.ToArray());
+                }
+
                 pAbaNcs.WriteData(pIndexPrimeiraLinha, 2, listaTextosLinhas.ToArray());
             }
             else
@@ -525,11 +557,108 @@ namespace ComparadorListasDeMateriais
             return erro;
         }
 
-        public static void EscreveTxt(string pNomeArquivo, string pResultadoComparacao)
+        public static void EscreveTxt(string pNomeArquivo, ObjetoResultadoComparacao pResultadoComparacao)
         {
             string nome = pNomeArquivo + ".txt";
+            
+            foreach (EstruturaComparacao estrutura in pResultadoComparacao.ListaEstruturasComparadas)
+            {
+                //string codigoEstrutura = estrutura.NomeEstruturaSaida.Split('-').First();
+                string codigoEstrutura = estrutura.NomeEstruturaSaida;
 
-            string resultado = pResultadoComparacao.Replace("@", "").Replace("#", "").Replace("$", "").Replace("%", "");
+                foreach (PosicaoComparacao posicao in estrutura.ListaPosicoesComErros)
+                {
+                    List<ErroPosicao> errosConsiderar = posicao.ListaErrosPosicao.Where(x => x.NcOuMelhoria == pNCOuMelhoria).ToList();
+
+                    if (errosConsiderar.Count > 0)
+                    {
+                        List<string> linha = new List<string>();
+
+                        linha.Add(posicao.NumeracaoString);
+
+                        string descricaoErro = string.Join("; ", errosConsiderar.Select(x => x.EscreveErroExcel()));
+
+                        linha.Add(descricaoErro);
+
+                        linha.Add("");
+                        linha.Add(codigoEstrutura);
+
+                        listaTextosLinhas.Add(linha.ToArray());
+                    }
+
+                }
+
+                if (pNCOuMelhoria)
+                {
+                    foreach (string posicao in estrutura.PosicoesSomenteListaOriginal.Distinct())
+                    {
+                        List<string> linha = new List<string>();
+
+                        linha.Add(posicao);
+
+                        string descricaoErro = string.Format("Posição {0} eliminada", posicao);
+
+                        linha.Add(descricaoErro);
+
+                        linha.Add("");
+                        linha.Add(codigoEstrutura);
+
+                        listaTextosLinhas.Add(linha.ToArray());
+                    }
+
+                    foreach (string posicao in estrutura.PosicoesSomenteListaNova.Distinct())
+                    {
+                        List<string> linha = new List<string>();
+
+                        linha.Add(posicao);
+
+                        string descricaoErro = string.Format("Criada posição {0}", posicao);
+
+                        linha.Add(descricaoErro);
+
+                        linha.Add("");
+                        linha.Add(codigoEstrutura);
+
+                        listaTextosLinhas.Add(linha.ToArray());
+                    }
+                }
+
+            }
+
+            if (pNCOuMelhoria)
+            {
+                int erro = 1;
+                foreach (string estrutura in pResultado.EstruturasSomenteListaOriginal)
+                {
+                    List<string> linha = new List<string>();
+
+                    linha.Add(string.Format("ENE-{0}", erro));
+                    erro++;
+
+                    string descricaoErro = string.Format("Estrutura {0} não encontrada na lista nova", estrutura);
+
+                    linha.Add(descricaoErro);
+
+                    listaTextosLinhas.Add(linha.ToArray());
+                }
+
+                foreach (string estrutura in pResultado.EstruturasSomenteListaNova)
+                {
+                    List<string> linha = new List<string>();
+
+                    linha.Add(string.Format("ENE-{0}", erro));
+                    erro++;
+
+                    string descricaoErro = string.Format("Estrutura {0} não encontrada na lista original", estrutura);
+
+                    linha.Add(descricaoErro);
+
+                    listaTextosLinhas.Add(linha.ToArray());
+                }
+
+                pAbaNcs.WriteData(pIndexPrimeiraLinha, 2, listaTextosLinhas.ToArray());
+            }
+
 
             using (StreamWriter outputFile = new StreamWriter(nome, false))
             {

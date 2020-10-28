@@ -11,7 +11,7 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
         public double ValorOriginal { get; set; }
         public double ValorNovo { get; set; }
 
-        public DivergenciaLargura(double pOriginal, double pNovo) : base(EnumErrosPosicao.Largura, true)
+        public DivergenciaLargura(double pOriginal, double pNovo) : base(EnumErrosPosicao.Largura, Math.Abs(pOriginal - pNovo) > 2)
         {
             this.ValorOriginal = pOriginal;
             this.ValorNovo = pNovo;

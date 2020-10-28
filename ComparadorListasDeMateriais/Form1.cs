@@ -22,7 +22,7 @@ namespace ComparadorListasDeMateriais
         private string nomeArquivoResultado;
 
         private bool salvarTxt = false;
-        private bool salvarExcel = true;
+        private bool salvarExcel = false;
 
         public Form1()
         {
@@ -54,8 +54,8 @@ namespace ComparadorListasDeMateriais
 
             List<string> caminhos = new List<string>();
 
-            //if (salvarTxt)
-            //    FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
+            if (salvarTxt)
+                FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
 
             if (salvarExcel)
                 FuncoesUteis.EscreveExcel(arquivoResultado + ".xlsx", resultado);
