@@ -626,7 +626,7 @@ namespace ComparadorListasDeMateriais
 
                 if(!temMelhoria && !temDivergencia)
                 {
-                    strBuilder.AppendLine("Todas as posições na estrutura estão iguais");
+                    strBuilder.AppendLine("   Todas as posições na estrutura estão iguais");
                 }
             }
 
