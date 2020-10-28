@@ -38,5 +38,9 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
             return string.Format(template, this.ValorNovo.ToString(), Math.Abs(this.DeltaValores).ToString(), acao);
         }
 
+        public override string EscreveErroTxt()
+        {
+            return string.Format("Chanfros: {0}/{1}", this.ValorOriginal, this.ValorNovo);
+        }
     }
 }

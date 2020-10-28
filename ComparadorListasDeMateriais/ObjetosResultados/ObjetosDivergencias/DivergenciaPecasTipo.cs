@@ -17,5 +17,10 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
         {
             return "Peças diferentes em cada lista (cantoneira/chapa)";
         }
+
+        public override string EscreveErroTxt()
+        {
+            return "Peças diferentes (cantoneira/chapa)";
+        }
     }
 }

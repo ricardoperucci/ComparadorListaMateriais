@@ -8,18 +8,23 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
 {
     public class DivergenciaPerfilCantoneira : ErroPosicao
     {
-        public string PerfilOriginal { get; set; }
-        public string PerfilNovo { get; set; }
+        public string ValorOriginal { get; set; }
+        public string ValorNovo { get; set; }
 
         public DivergenciaPerfilCantoneira(string pOriginal, string pNovo) : base(EnumErrosPosicao.PerfilCantoneira, true)
         {
-            this.PerfilOriginal = pOriginal;
-            this.PerfilNovo = pNovo;
+            this.ValorOriginal = pOriginal;
+            this.ValorNovo = pNovo;
         }
 
         public override string EscreveErroExcel()
         {
-            return string.Format("Perfil alterado de {0} p/ {1}", this.PerfilOriginal, this.PerfilNovo);
+            return string.Format("Perfil alterado de {0} p/ {1}", this.ValorOriginal, this.ValorNovo);
+        }
+
+        public override string EscreveErroTxt()
+        {
+            return string.Format("Perfil: {0} / {1}", this.ValorOriginal, this.ValorNovo);
         }
     }
 }

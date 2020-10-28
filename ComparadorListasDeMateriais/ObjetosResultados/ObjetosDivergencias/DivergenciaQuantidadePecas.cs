@@ -26,5 +26,9 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
             return string.Format("Quantidade de peças alterada de {0} p/ {1}", this.ValorOriginal, this.ValorNovo);
         }
 
+        public override string EscreveErroTxt()
+        {
+            return string.Format("Quantidade: {0} / {1}", this.ValorOriginal, this.ValorNovo);
+        }
     }
 }

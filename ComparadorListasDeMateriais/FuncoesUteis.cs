@@ -560,109 +560,99 @@ namespace ComparadorListasDeMateriais
         public static void EscreveTxt(string pNomeArquivo, ObjetoResultadoComparacao pResultadoComparacao)
         {
             string nome = pNomeArquivo + ".txt";
+
+            StringBuilder strBuilder = new StringBuilder();
+
+            strBuilder.AppendLine(pResultadoComparacao.ObjetoCabecalho.EscreveCabecalho());
             
+
             foreach (EstruturaComparacao estrutura in pResultadoComparacao.ListaEstruturasComparadas)
             {
-                //string codigoEstrutura = estrutura.NomeEstruturaSaida.Split('-').First();
-                string codigoEstrutura = estrutura.NomeEstruturaSaida;
+                strBuilder.AppendLine(estrutura.NomeEstruturaSaida);
+                strBuilder.AppendLine();
+
+                if(estrutura.PosicoesSomenteListaOriginal.Count > 0)
+                {
+                    strBuilder.AppendLine(string.Format("   Posições não encontradas na lista original: {0}", string.Join(", ", estrutura.PosicoesSomenteListaOriginal.Distinct())));
+                    strBuilder.AppendLine();
+                }
+
+                if (estrutura.PosicoesSomenteListaNova.Count > 0)
+                {
+                    strBuilder.AppendLine(string.Format("   Posições não encontradas na lista nova: {0}", string.Join(", ", estrutura.PosicoesSomenteListaNova.Distinct())));
+                    strBuilder.AppendLine();
+                }
+
+                StringBuilder divergencias = new StringBuilder();
+
+                StringBuilder melhorias = new StringBuilder();
+
+                bool temDivergencia = false;
+                bool temMelhoria = false;
 
                 foreach (PosicaoComparacao posicao in estrutura.ListaPosicoesComErros)
                 {
-                    List<ErroPosicao> errosConsiderar = posicao.ListaErrosPosicao.Where(x => x.NcOuMelhoria == pNCOuMelhoria).ToList();
-
-                    if (errosConsiderar.Count > 0)
+                    if(posicao.EscreveAlteracoes(true, out string alteracoes))
                     {
-                        List<string> linha = new List<string>();
-
-                        linha.Add(posicao.NumeracaoString);
-
-                        string descricaoErro = string.Join("; ", errosConsiderar.Select(x => x.EscreveErroExcel()));
-
-                        linha.Add(descricaoErro);
-
-                        linha.Add("");
-                        linha.Add(codigoEstrutura);
-
-                        listaTextosLinhas.Add(linha.ToArray());
+                        divergencias.AppendLine(alteracoes);
+                        temDivergencia = true;
                     }
-
                 }
 
-                if (pNCOuMelhoria)
+                foreach (PosicaoComparacao posicao in estrutura.ListaPosicoesComErros)
                 {
-                    foreach (string posicao in estrutura.PosicoesSomenteListaOriginal.Distinct())
+                    if (posicao.EscreveAlteracoes(false, out string alteracoes))
                     {
-                        List<string> linha = new List<string>();
-
-                        linha.Add(posicao);
-
-                        string descricaoErro = string.Format("Posição {0} eliminada", posicao);
-
-                        linha.Add(descricaoErro);
-
-                        linha.Add("");
-                        linha.Add(codigoEstrutura);
-
-                        listaTextosLinhas.Add(linha.ToArray());
-                    }
-
-                    foreach (string posicao in estrutura.PosicoesSomenteListaNova.Distinct())
-                    {
-                        List<string> linha = new List<string>();
-
-                        linha.Add(posicao);
-
-                        string descricaoErro = string.Format("Criada posição {0}", posicao);
-
-                        linha.Add(descricaoErro);
-
-                        linha.Add("");
-                        linha.Add(codigoEstrutura);
-
-                        listaTextosLinhas.Add(linha.ToArray());
+                        melhorias.AppendLine(alteracoes);
+                        temMelhoria = true;
                     }
                 }
 
+                if (temDivergencia)
+                {
+                    strBuilder.AppendLine("   Divergências:");
+                    strBuilder.AppendLine();
+
+                    strBuilder.Append(divergencias.ToString());
+                }
+
+                if (temMelhoria)
+                {
+                    strBuilder.AppendLine("   Melhorias:");
+                    strBuilder.AppendLine();
+
+                    strBuilder.AppendLine(melhorias.ToString());
+                }
+
+                if(!temMelhoria && !temDivergencia)
+                {
+                    strBuilder.AppendLine("Todas as posições na estrutura estão iguais");
+                }
             }
 
-            if (pNCOuMelhoria)
+            if (pResultadoComparacao.EstruturasSomenteListaOriginal.Count > 0)
             {
-                int erro = 1;
-                foreach (string estrutura in pResultado.EstruturasSomenteListaOriginal)
+                strBuilder.AppendLine("Estruturas que estão na Lista Original e não foram encontradas na Lista Nova:");
+
+                foreach (string estrutura in pResultadoComparacao.EstruturasSomenteListaOriginal)
                 {
-                    List<string> linha = new List<string>();
-
-                    linha.Add(string.Format("ENE-{0}", erro));
-                    erro++;
-
-                    string descricaoErro = string.Format("Estrutura {0} não encontrada na lista nova", estrutura);
-
-                    linha.Add(descricaoErro);
-
-                    listaTextosLinhas.Add(linha.ToArray());
+                    strBuilder.AppendLine(string.Format("   • {0}", estrutura));
                 }
-
-                foreach (string estrutura in pResultado.EstruturasSomenteListaNova)
-                {
-                    List<string> linha = new List<string>();
-
-                    linha.Add(string.Format("ENE-{0}", erro));
-                    erro++;
-
-                    string descricaoErro = string.Format("Estrutura {0} não encontrada na lista original", estrutura);
-
-                    linha.Add(descricaoErro);
-
-                    listaTextosLinhas.Add(linha.ToArray());
-                }
-
-                pAbaNcs.WriteData(pIndexPrimeiraLinha, 2, listaTextosLinhas.ToArray());
             }
 
+            if (pResultadoComparacao.EstruturasSomenteListaNova.Count > 0)
+            {
+                strBuilder.AppendLine("Estruturas que estão na Lista Nova e não foram encontradas na Lista Original:");
+
+                foreach (string estrutura in pResultadoComparacao.EstruturasSomenteListaNova)
+                {
+                    strBuilder.AppendLine(string.Format("   • {0}", estrutura));
+                }
+            }
 
             using (StreamWriter outputFile = new StreamWriter(nome, false))
             {
-                outputFile.Write(resultado);
+                outputFile.Write(strBuilder.ToString());
             }
         }
 

@@ -17,5 +17,10 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
         {
             return "Material alterado";
         }
+
+        public override string EscreveErroTxt()
+        {
+            return "Material";
+        }
     }
 }

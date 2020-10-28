@@ -28,5 +28,10 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
 
             return string.Format(template, acao);
         }
+
+        public override string EscreveErroTxt()
+        {
+            return EscreveErroExcel();
+        }
     }
 }

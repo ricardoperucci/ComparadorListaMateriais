@@ -21,5 +21,33 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
 
             this.NumeracaoString = pNumeracao;
         }
+
+
+        public bool EscreveAlteracoes(bool pNCouMelhoria, out string alteracoes)
+        {
+            alteracoes = "";
+
+            List<ErroPosicao> divergenciasPosicao = this.ListaErrosPosicao.Where(x => x.NcOuMelhoria == pNCouMelhoria).ToList();
+
+            StringBuilder strBuilder = new StringBuilder();
+            if (divergenciasPosicao.Count == 0)
+            {
+                return false;
+            }
+
+            else
+            {
+                for (int i = 0; i < divergenciasPosicao.Count(); i++)
+                {
+                    if (i == 0)
+                        strBuilder.AppendLine(string.Format("       {0}: • {1}", this.NumeracaoString, divergenciasPosicao[i].EscreveErroTxt()));
+                    else
+                        strBuilder.AppendLine(string.Format("           • {1}", this.NumeracaoString, divergenciasPosicao[i].EscreveErroTxt()));
+                }
+            }
+
+            alteracoes = strBuilder.ToString();
+            return true;
+        }
     }
 }

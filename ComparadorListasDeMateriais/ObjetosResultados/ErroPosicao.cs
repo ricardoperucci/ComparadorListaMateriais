@@ -19,11 +19,17 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
         }
 
         /// <summary>
-        /// Escreve o texto do erro
+        /// Escreve o texto do erro para relatório em excel
         /// </summary>
         /// <returns></returns>
         public abstract string EscreveErroExcel();
-        
+
+        /// <summary>
+        /// Escreve o texto do erro para relatório em txt
+        /// </summary>
+        /// <returns></returns>
+        public abstract string EscreveErroTxt();
+
         //if (this.TipoErroEnum.Equals(EnumErrosPosicao.Comprimento))
         //{
         //    return string.Format("Comprimento: {0}mm => {1}/{2}", this.DeltaValores, this.ValorOriginal, this.ValorNovo);
@@ -105,7 +111,7 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
         //}
 
         //return "";
-        
+
 
 
 

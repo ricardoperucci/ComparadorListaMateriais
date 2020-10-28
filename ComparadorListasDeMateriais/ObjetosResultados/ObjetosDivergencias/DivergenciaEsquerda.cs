@@ -34,5 +34,10 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
                 return "Removida informação de peça esquerda";
             }
         }
+
+        public override string EscreveErroTxt()
+        {
+            return "Esquerda";
+        }
     }
 }

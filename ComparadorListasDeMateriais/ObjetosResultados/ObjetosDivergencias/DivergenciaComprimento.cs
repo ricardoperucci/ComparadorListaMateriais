@@ -25,5 +25,10 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
         {
             return string.Format("Comprimento alterado de {0}mm p/ {1}mm", this.ValorOriginal, this.ValorNovo);
         }
+
+        public override string EscreveErroTxt()
+        {
+            return string.Format("Comprimento: {0}mm => {1} / {2}", this.DeltaValores, this.ValorOriginal, this.ValorNovo);
+        }
     }
 }

@@ -21,5 +21,10 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
         {
             return string.Format("Raio de usinagem da calota alterado de {0} p/ {1}", this.ValorOriginal, this.ValorNovo);
         }
+
+        public override string EscreveErroTxt()
+        {
+            return string.Format("Raio de usinagem {0} / {1}", this.ValorOriginal, this.ValorNovo);
+        }
     }
 }
