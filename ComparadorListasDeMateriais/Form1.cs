@@ -54,8 +54,8 @@ namespace ComparadorListasDeMateriais
 
             List<string> caminhos = new List<string>();
 
-            if (salvarTxt)
-                FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
+            //if (salvarTxt)
+            //    FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
 
             if (salvarExcel)
                 FuncoesUteis.EscreveExcel(arquivoResultado + ".xlsx", resultado);

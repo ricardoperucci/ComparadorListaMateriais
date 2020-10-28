@@ -291,30 +291,86 @@ namespace ComparadorListasDeMateriais
             //dados = lista de listas onde cada lista é uma linha
             var dados = abaNcs.Data;
             //aba.WriteData(0, 0, saida);
-            EscreveDivergenciasExcel(abaNcs, ListaNCsMelhoriasPosicao(pResultadoComparacao, true), _primeiraLinhaNCExcel, true);
+            EscreveDivergenciasExcel(abaNcs, pResultadoComparacao, _primeiraLinhaNCExcel, true);
 
-            EscreveDivergenciasExcel(abaMelhorias, ListaNCsMelhoriasPosicao(pResultadoComparacao, false), _primeiraLinhaMelhoriaExcel, false);
+            EscreveDivergenciasExcel(abaMelhorias, pResultadoComparacao, _primeiraLinhaMelhoriaExcel, false);
 
             wb.Save();
         }
 
-        public static void EscreveDivergenciasExcel(WorkSheet pAbaNcs, Dictionary<string, List<string>> pErrosPorPosicao, int pIndexPrimeiraLinha, bool pNCOuMelhoria)
+        /// <summary>
+        /// Escreve os resultados contidos no ObjetoResultadoComparacao no arquivo Excel
+        /// </summary>
+        /// <param name="pAbaNcs"></param>
+        /// <param name="pResultado"></param>
+        /// <param name="pIndexPrimeiraLinha"></param>
+        /// <param name="pNCOuMelhoria"></param>
+        public static void EscreveDivergenciasExcel(WorkSheet pAbaNcs, ObjetoResultadoComparacao pResultado, int pIndexPrimeiraLinha, bool pNCOuMelhoria)
         {
             List<string[]> listaTextosLinhas = new List<string[]>();
 
-            foreach(var kvpPosicaoErros in pErrosPorPosicao)
+            foreach(EstruturaComparacao estrutura in pResultado.ListaEstruturasComparadas)
             {
-                List<string> linha = new List<string>();
+                //string codigoEstrutura = estrutura.NomeEstruturaSaida.Split('-').First();
+                string codigoEstrutura = estrutura.NomeEstruturaSaida.Substring(0, 7);
 
-                linha.Add(kvpPosicaoErros.Key);
+                foreach(PosicaoComparacao posicao in estrutura.ListaPosicoesComErros)
+                {
+                    List<ErroPosicao> errosConsiderar = posicao.ListaErrosPosicao.Where(x => x.NcOuMelhoria == pNCOuMelhoria).ToList();
 
-                string descricaoErro = string.Join("; ", kvpPosicaoErros.Value);
+                    if(errosConsiderar.Count > 0)
+                    {
+                        List<string> linha = new List<string>();
 
-                linha.Add(descricaoErro);
+                        linha.Add(posicao.NumeracaoString);
 
-                listaTextosLinhas.Add(linha.ToArray());
+                        string descricaoErro = string.Join("; ", errosConsiderar.Select(x => x.EscreveErroExcel()));
+
+                        linha.Add(descricaoErro);
+
+                        linha.Add(codigoEstrutura);
+
+                        listaTextosLinhas.Add(linha.ToArray());
+                    }
+                    
+                }
+
+                if (pNCOuMelhoria)
+                {
+                    foreach (string posicao in estrutura.PosicoesSomenteListaOriginal.Distinct())
+                    {
+                        List<string> linha = new List<string>();
+
+                        linha.Add(posicao);
+
+                        string descricaoErro = string.Format("Posição {0} eliminada", posicao);
+
+                        linha.Add(descricaoErro);
+
+                        linha.Add(codigoEstrutura);
+
+                        listaTextosLinhas.Add(linha.ToArray());
+                    }
+
+                    foreach (string posicao in estrutura.PosicoesSomenteListaNova.Distinct())
+                    {
+                        List<string> linha = new List<string>();
+
+                        linha.Add(posicao);
+
+                        string descricaoErro = string.Format("Criada posição {0}", posicao);
+
+                        linha.Add(descricaoErro);
+
+                        linha.Add(codigoEstrutura);
+
+                        listaTextosLinhas.Add(linha.ToArray());
+                    }
+                }
+                
             }
-            if(pNCOuMelhoria)
+
+            if (pNCOuMelhoria)
             {
                 pAbaNcs.WriteData(pIndexPrimeiraLinha, 2, listaTextosLinhas.ToArray());
             }
@@ -323,57 +379,6 @@ namespace ComparadorListasDeMateriais
                 pAbaNcs.WriteData(pIndexPrimeiraLinha, 0, listaTextosLinhas.ToArray());
             }
 
-        }
-
-        public static Dictionary<string, List<string>> ListaNCsMelhoriasPosicao(string pResultado, bool pNCOuMelhoria)
-        {
-            List<string> linhasResultado = pResultado.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
-
-            Dictionary<string, List<string>> dicErrosPosicao = new Dictionary<string, List<string>>();
-
-            string erroPrimeiro = pNCOuMelhoria ? "#" : "$";
-            string erroSecundarios = pNCOuMelhoria ? "%" : "@";
-
-            foreach (string linha in linhasResultado)
-            {
-                string erro = LimpaLinhaErro(linha);
-
-                if (linha.Contains(erroPrimeiro))
-                {
-                    string posicao = linha.Split(erroPrimeiro.ToCharArray()).Last().Split(':').First();
-
-                    if (dicErrosPosicao.ContainsKey(posicao))
-                    {
-                        if(!ErroIgualNaLista(dicErrosPosicao[posicao], erro))
-                            dicErrosPosicao[posicao].Add(erro);
-                    }
-                    else
-                    {
-                        dicErrosPosicao.Add(posicao, new List<string> { erro });
-                    }
-                }
-
-                if (linha.Contains(erroSecundarios))
-                {
-                    if(!ErroIgualNaLista(dicErrosPosicao.Last().Value, erro))
-                        dicErrosPosicao.Last().Value.Add(linha.Replace("%", "").Replace("@", "").Replace("   ", " "));
-                }
-            }
-
-            if (pNCOuMelhoria)
-            {
-                foreach (var erro in EscreverPosicoesNaoEncontradasExcel(linhasResultado))
-                {
-                    dicErrosPosicao.Add(erro.Key, erro.Value);
-                }
-
-                foreach (var erro in EscreverEstruturasNaoEncontradasExcel(linhasResultado))
-                {
-                    dicErrosPosicao.Add(erro.Key, erro.Value);
-                }
-            }
-
-            return dicErrosPosicao;
         }
 
         public static bool ErroIgualNaLista(List<string> pLista, string pErro)
