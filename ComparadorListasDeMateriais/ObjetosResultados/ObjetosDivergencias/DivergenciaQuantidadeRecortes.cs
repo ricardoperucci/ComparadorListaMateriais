@@ -23,19 +23,38 @@ namespace ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias
 
         public override string EscreveErroExcel()
         {
-            string template = "Quantidade de recortes alterada p/ {0} ({1} {2})";
+            //string template = "Quantidade de recortes alterada p/ {0} ({1} {2})";
+            string template = "{0} {1} {2}";
 
             string acao = "";
             if(this.DeltaValores > 0)
             {
-                acao = this.DeltaValores > 1 ? "recortes adicionados" : "recorte adicionado";
+                acao = this.DeltaValores > 1 ? "Acrescentados recortes" : "Acrescentado recorte";
             }
             else
             {
-                acao = this.DeltaValores < -1 ? "recortes removidos" : "recorte removido";
+                acao = this.DeltaValores < -1 ? "Removidos recortes" : "Removido recorte";
             }
 
-            return string.Format(template, this.ValorNovo.ToString(), Math.Abs(this.DeltaValores).ToString(), acao);
+            string qtde = "XXX=0000";
+            string justif = "XXXXXXX";
+            for (int i = 0; i < Math.Abs(this.DeltaValores) - 1; i++)
+            {
+                if (i == Math.Abs(this.DeltaValores) - 2)
+                {
+                    qtde = qtde + " e XXX=0000";
+                    justif = justif + " e XXXXXXX";
+                }
+                else
+                {
+                    qtde = qtde + ", XXX=0000";
+                    justif = justif + ", XXXXXXX";
+                }
+            }
+
+            string finalTexto = this.DeltaValores > 0 ? string.Format("para evitar colisão com {0}", justif) : "";
+
+            return string.Format(template, acao, qtde, finalTexto);
         }
 
         public override string EscreveErroTxt()
