@@ -171,7 +171,7 @@
             this.checkBoxExcel.Name = "checkBoxExcel";
             this.checkBoxExcel.Size = new System.Drawing.Size(147, 17);
             this.checkBoxExcel.TabIndex = 14;
-            this.checkBoxExcel.Text = "Salvar resultado em excel";
+            this.checkBoxExcel.Text = "Gerar Relatório de PMV";
             this.checkBoxExcel.UseVisualStyleBackColor = true;
             this.checkBoxExcel.CheckedChanged += new System.EventHandler(this.checkBoxExcel_CheckedChanged);
             // 
