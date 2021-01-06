@@ -23,6 +23,7 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
         DiametroFuroCalota = 13,
         RaioUsinagemCalota = 14,
         Largura = 15,
-        Espessura = 16
+        Espessura = 16,
+        EntreEstruturasLista = 17
     }
 }

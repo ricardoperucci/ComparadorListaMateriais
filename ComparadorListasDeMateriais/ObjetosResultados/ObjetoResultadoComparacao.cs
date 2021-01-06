@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,9 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
 
         public List<EstruturaComparacao> ListaEstruturasComparadas { get; set; }
 
-        public ObjetoResultadoComparacao(ObjetoCabecalho pObjetoCabecalho, List<string> pEstruturasSomenteListaOriginal, List<string> pEstruturasSomenteListaNova)
+        public List<DivergenciaEntreEstruturaLista> ListaDivergenciasMesmaLista{ get; set; }
+
+        public ObjetoResultadoComparacao(ObjetoCabecalho pObjetoCabecalho, List<string> pEstruturasSomenteListaOriginal, List<string> pEstruturasSomenteListaNova, List<DivergenciaEntreEstruturaLista> pDivergenciasMesmaLista)
         {
             this.ObjetoCabecalho = pObjetoCabecalho;
 
@@ -23,6 +26,8 @@ namespace ComparadorListasDeMateriais.ObjetosResultados
 
             this.EstruturasSomenteListaOriginal = pEstruturasSomenteListaOriginal;
             this.EstruturasSomenteListaNova = pEstruturasSomenteListaNova;
+
+            this.ListaDivergenciasMesmaLista = pDivergenciasMesmaLista;
         }
     }
 }

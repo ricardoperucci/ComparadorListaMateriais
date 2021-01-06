@@ -11,6 +11,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using ComparadorListasDeMateriais.ObjetosLista;
 using ComparadorListasDeMateriais.ObjetosResultados;
+using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
 
 namespace ComparadorListasDeMateriais
 {
@@ -31,9 +32,14 @@ namespace ComparadorListasDeMateriais
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais1 = CriaObjetosComparacaoLista(pCaminho1);
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais2 = CriaObjetosComparacaoLista(pCaminho2);
 
+            List<DivergenciaEntreEstruturaLista> divergenciasMesmaLista = new List<DivergenciaEntreEstruturaLista>();
+
+            divergenciasMesmaLista.AddRange(ComparaEstruturasUmaLista(listaMateriais1, "Lista Original"));
+            divergenciasMesmaLista.AddRange(ComparaEstruturasUmaLista(listaMateriais2, "Lista Nova"));
+
             List<string> estruturasComuns = EstruturasComuns(listaMateriais1, listaMateriais2, out List<string> soNa1, out List<string> soNa2);
 
-            resultado = new ObjetoResultadoComparacao(cabecalho, soNa1, soNa2);
+            resultado = new ObjetoResultadoComparacao(cabecalho, soNa1, soNa2, divergenciasMesmaLista);
 
             foreach (string estrutura in estruturasComuns)
             {
@@ -41,7 +47,7 @@ namespace ComparadorListasDeMateriais
 
                 var objeto2 = listaMateriais2.FirstOrDefault(x => FuncoesUteis.ComparaNomeEstruturas(x.Key, estrutura));
 
-                resultado.ListaEstruturasComparadas.Add(ComparaEstruturaNasListas(objeto1.Value, objeto2.Value, estrutura));
+                resultado.ListaEstruturasComparadas.Add(ComparaEstruturas(objeto1.Value, objeto2.Value, estrutura));
             }
 
             return true;
@@ -128,7 +134,7 @@ namespace ComparadorListasDeMateriais
         /// <param name="pObjetosLista2"></param>
         /// <param name="pEstrutura"></param>
         /// <returns></returns>
-        public EstruturaComparacao ComparaEstruturaNasListas(List<ObjetoComparacaoLista> pObjetosLista1, List<ObjetoComparacaoLista> pObjetosLista2, string pEstrutura)
+        public EstruturaComparacao ComparaEstruturas(List<ObjetoComparacaoLista> pObjetosLista1, List<ObjetoComparacaoLista> pObjetosLista2, string pEstrutura)
         {
             EstruturaComparacao saida = new EstruturaComparacao();
 
@@ -142,9 +148,6 @@ namespace ComparadorListasDeMateriais
 
             if (posicoesNasDuas.Count > 0)
             {
-                StringBuilder strDivergenciasEst = new StringBuilder();
-                StringBuilder strMelhoriasEst = new StringBuilder();
-                
                 foreach (string posicao in posicoesNasDuas)
                 {
                     ObjetoComparacaoLista objetoLista1 = pObjetosLista1.FirstOrDefault(x => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, posicao));
@@ -157,6 +160,61 @@ namespace ComparadorListasDeMateriais
                         saida.ListaPosicoesComErros.Add(new PosicaoComparacao(divergencias, posicao));
                     }
                 }
+            }
+
+            return saida;
+        }
+
+        /// <summary>
+        /// Compara a estrutura nas duas listas
+        /// </summary>
+        /// <param name="pObjetosLista1"></param>
+        /// <param name="pObjetosLista2"></param>
+        /// <param name="pQualLista"></param>
+        /// <returns></returns>
+        public List<DivergenciaEntreEstruturaLista> ComparaEstruturasUmaLista(Dictionary<string, List<ObjetoComparacaoLista>> pEstruturasLista, string pQualLista)
+        {
+            List<DivergenciaEntreEstruturaLista> saida = new List<DivergenciaEntreEstruturaLista>();
+
+            for (int i = 0; i < pEstruturasLista.Count; i++)
+            {
+                string nomeEstrutura = pEstruturasLista.Keys.ToList()[i];
+                List<ObjetoComparacaoLista> estrutura1 = pEstruturasLista[nomeEstrutura];
+
+                foreach (ObjetoComparacaoLista objetoEstrutura1 in estrutura1)
+                {
+                    DivergenciaEntreEstruturaLista jaEncontrouErro = saida.FirstOrDefault(x => x.Posicao.Equals(objetoEstrutura1.NumeracaoComMaterial));
+
+                    if(jaEncontrouErro != null)
+                    {
+                        jaEncontrouErro.EstruturasQueContem.Add(nomeEstrutura);
+                    }
+                    else
+                    {
+                        for (int k = i + 1; k < pEstruturasLista.Count; k++)
+                        {
+                            string nomeEstrutura2 = pEstruturasLista.Keys.ToList()[k];
+                            List<ObjetoComparacaoLista> estrutura2 = pEstruturasLista[nomeEstrutura2];
+
+                            ObjetoComparacaoLista objetoEstrutura2 = estrutura2.FirstOrDefault(x => FuncoesUteis.ComparaPosicoes(x.NumeracaoComMaterial, objetoEstrutura1.NumeracaoComMaterial));
+
+                            if(objetoEstrutura2 != null)
+                            {
+                                List<ErroPosicao> divergencias = objetoEstrutura1.CompararComObjeto(objetoEstrutura2);
+
+                                if (divergencias.Count > 0)
+                                {
+                                    if (divergencias.Count == 1 && divergencias[0].TipoErroEnum.Equals(EnumErrosPosicao.Quantidade))
+                                        continue;
+
+                                    saida.Add(new DivergenciaEntreEstruturaLista(new List<string> { nomeEstrutura }, pQualLista, objetoEstrutura1.NumeracaoComMaterial));
+                                }
+                            }
+                           
+                        }
+                    }
+                }
+
             }
 
             return saida;

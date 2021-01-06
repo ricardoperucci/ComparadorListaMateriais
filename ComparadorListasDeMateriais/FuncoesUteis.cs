@@ -1,5 +1,6 @@
 ﻿using ComparadorListasDeMateriais.ObjetosLista;
 using ComparadorListasDeMateriais.ObjetosResultados;
+using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -375,6 +376,19 @@ namespace ComparadorListasDeMateriais
 
             if (pNCOuMelhoria)
             {
+                foreach (DivergenciaEntreEstruturaLista divergenciaMesmaLista in pResultado.ListaDivergenciasMesmaLista)
+                {
+                    List<string> linha = new List<string>();
+
+                    linha.Add(divergenciaMesmaLista.Posicao);
+
+                    string descricaoErro = string.Format(divergenciaMesmaLista.EscreveErroExcel());
+
+                    linha.Add(descricaoErro);
+
+                    listaTextosLinhas.Add(linha.ToArray());
+                }
+
                 int erro = 1;
                 foreach(string estrutura in pResultado.EstruturasSomenteListaOriginal)
                 {
@@ -403,6 +417,8 @@ namespace ComparadorListasDeMateriais
 
                     listaTextosLinhas.Add(linha.ToArray());
                 }
+
+                
 
                 pAbaNcs.WriteData(pIndexPrimeiraLinha, 2, listaTextosLinhas.ToArray());
             }
@@ -565,7 +581,6 @@ namespace ComparadorListasDeMateriais
 
             strBuilder.AppendLine(pResultadoComparacao.ObjetoCabecalho.EscreveCabecalho());
             
-
             foreach (EstruturaComparacao estrutura in pResultadoComparacao.ListaEstruturasComparadas)
             {
                 strBuilder.AppendLine(estrutura.NomeEstruturaSaida);
@@ -626,7 +641,18 @@ namespace ComparadorListasDeMateriais
 
                 if(!temMelhoria && !temDivergencia)
                 {
-                    strBuilder.AppendLine("   Todas as posições na estrutura estão iguais");
+                    strBuilder.AppendLine("   Todas as posições na estrutura estão iguais entre as listas");
+                }
+            }
+
+            if(pResultadoComparacao.ListaDivergenciasMesmaLista.Count > 0)
+            {
+                strBuilder.AppendLine();
+                strBuilder.AppendLine("Posições que estão com informações divergente entre estruturas de uma mesma lista:");
+                
+                foreach (DivergenciaEntreEstruturaLista divergencia in pResultadoComparacao.ListaDivergenciasMesmaLista)
+                {
+                    strBuilder.AppendLine(string.Format("   • {0} na {1} : {2}", divergencia.Posicao, divergencia.ListaErrada, string.Join(", ", divergencia.EstruturasQueContem)));
                 }
             }
 

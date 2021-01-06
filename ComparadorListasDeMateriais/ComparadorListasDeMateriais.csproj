@@ -95,6 +95,7 @@
     <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaConjuntoSoldado.cs" />
     <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaDegrau.cs" />
     <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaDiametroCalota.cs" />
+    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaEntreEstruturaLista.cs" />
     <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaEspessura.cs" />
     <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaEsquerda.cs" />
     <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaFuroCalota.cs" />
