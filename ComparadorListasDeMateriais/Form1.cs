@@ -1,4 +1,6 @@
-﻿using ComparadorListasDeMateriais.ObjetosResultados;
+﻿using ComparadorListasDeMateriais.ComparadorCAM;
+using ComparadorListasDeMateriais.ObjetosResultados;
+using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -46,19 +48,39 @@ namespace ComparadorListasDeMateriais
 
         private void buttonComparar_Click(object sender, EventArgs e)
         {
-            Comparador comp = new Comparador();
-
-            comp.CompararListas(caminhoArquivo1, caminhoArquivo2, out ObjetoResultadoComparacao resultado);
+            List<string> arquivosA = Directory.GetFiles(caminhoArquivo1).Where(x => x.Split(".".ToCharArray()).Last().Equals("CAM")).ToList();
 
             string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado;
 
-            List<string> caminhos = new List<string>();
+            if (caminhoArquivo1.Contains("CAM"))
+            {
+                caminhoArquivo1 = Path.GetFullPath(caminhoArquivo1);
+                caminhoArquivo2 = Path.GetFullPath(caminhoArquivo2);
 
-            if (salvarTxt)
-                FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
+                FuncoesComparadorCAM.ComparaArquivosCAM(ModelagemTorre.FabricanteEnum.Brametal, caminhoArquivo1, caminhoArquivo2, out StringBuilder strBuilder);
 
-            if (salvarExcel)
-                FuncoesUteis.EscreveExcel(arquivoResultado + ".xlsx", resultado);
+                string nome = arquivoResultado + ".txt";
+
+                using (StreamWriter outputFile = new StreamWriter(nome, false))
+                {
+                    outputFile.Write(strBuilder.ToString());
+                }
+            }
+            else
+            {
+                Comparador comp = new Comparador();
+
+                comp.CompararListas(caminhoArquivo1, caminhoArquivo2, out ObjetoResultadoComparacao resultado);
+
+                List<string> caminhos = new List<string>();
+
+                if (salvarTxt)
+                    FuncoesUteis.EscreveTxt(arquivoResultado, resultado);
+
+                if (salvarExcel)
+                    FuncoesUteis.EscreveExcel(arquivoResultado + ".xlsx", resultado);
+            }
+
 
             if (salvarTxt || salvarExcel)
                 MessageBox.Show(string.Format("Resultado salvo em {0}", arquivoResultado));
