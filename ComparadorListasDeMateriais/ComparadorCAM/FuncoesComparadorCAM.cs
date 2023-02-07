@@ -33,7 +33,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricante);
 
-                dicObjetosLeituraCamA.Add(posicaoCAM, objetoLeituraCAM);
+                dicObjetosLeituraCamA.Add(posicaoCAMSemMaterial, objetoLeituraCAM);
             }
 
             foreach (string arquivo in arquivosCamB)
@@ -44,7 +44,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricante);
 
-                dicObjetosLeituraCamB.Add(posicaoCAM, objetoLeituraCAM);
+                dicObjetosLeituraCamB.Add(posicaoCAMSemMaterial, objetoLeituraCAM);
             }
 
             var posicoesFaltandoA = dicObjetosLeituraCamB.Keys.Where(x => !dicObjetosLeituraCamA.Keys.Contains(x));
@@ -52,10 +52,10 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
             stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine(FuncoesHefestoUteis.FormatarNegrito("RELATÓRIO COMPARAÇÂO ARQUIVOS CAM"));
+            stringBuilder.AppendLine("RELATÓRIO COMPARAÇÂO ARQUIVOS CAM");
 
-            stringBuilder.AppendLine($"{FuncoesHefestoUteis.FormatarNegrito("Pasta A")}: {pCaminhoPastaCamA}");
-            stringBuilder.AppendLine($"{FuncoesHefestoUteis.FormatarNegrito("Pasta B")}: {pCaminhoPastaCamB}");
+            stringBuilder.AppendLine($"Pasta A: {pCaminhoPastaCamA}");
+            stringBuilder.AppendLine($"Pasta B: {pCaminhoPastaCamB}");
 
             stringBuilder.AppendLine();
             stringBuilder.AppendLine();
@@ -82,23 +82,67 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
             Dictionary<string, List<string>> divergencias = new Dictionary<string, List<string>>();
 
-            foreach(string pos in dicObjetosLeituraCamA.Keys)
+            List<string> cantoneirasSemGlistaA = new List<string>();
+            List<string> cantoneirasSemGlistaB = new List<string>();
+
+            foreach (string pos in dicObjetosLeituraCamA.Keys)
             {
                 if (!dicObjetosLeituraCamB.ContainsKey(pos))
                     continue;
 
+                if(dicObjetosLeituraCamA[pos] is CantoneiraLeituraCAMTxt cant && !cant.Material.Contains("GR60"))
+                {
+                    cantoneirasSemGlistaA.Add(pos);
+                }
+                if (dicObjetosLeituraCamB[pos] is CantoneiraLeituraCAMTxt cantb && !cantb.Material.Contains("GR60"))
+                {
+                    cantoneirasSemGlistaB.Add(pos);
+                }
 
-                divergencias.Add(pos, dicObjetosLeituraCamA[pos].CompararComObjeto(dicObjetosLeituraCamB[pos]));
+                var listaDifsPosicao = dicObjetosLeituraCamA[pos].CompararComObjeto(dicObjetosLeituraCamB[pos]);
+
+                if (listaDifsPosicao.Count == 0)
+                    continue;
+
+                divergencias.Add(pos, listaDifsPosicao);
             }
 
             if(divergencias.Count > 0)
             {
                 stringBuilder.AppendLine("Divergências encontradas entre os arquivos:");
 
-                foreach(var kvpdiv in divergencias)
+                var divergenciasSort = divergencias.OrderBy(x => FuncoesHefestoUteis.PosicaoNumeroParaOrdem(x.Key)).ToList();
+
+                foreach (var kvpdiv in divergenciasSort)
                 {
                     stringBuilder.AppendLine($"POS. {kvpdiv.Key}: {string.Join(" / ", kvpdiv.Value)}");
                 }
+
+                stringBuilder.AppendLine();
+            }
+
+            if (cantoneirasSemGlistaA.Count > 0)
+            {
+                stringBuilder.AppendLine("Cantoneiras sem aço G nos arquivos da Pasta A");
+                stringBuilder.AppendLine(string.Join(", ", cantoneirasSemGlistaA));
+                stringBuilder.AppendLine();
+            }
+            else
+            {
+                stringBuilder.AppendLine("Todas cantoneiras com aço G nos arquivos da Pasta A");
+                stringBuilder.AppendLine();
+            }
+
+            if (cantoneirasSemGlistaB.Count > 0)
+            {
+                stringBuilder.AppendLine("Cantoneiras sem aço G nos arquivos da Pasta B");
+                stringBuilder.AppendLine(string.Join(", ", cantoneirasSemGlistaB));
+                stringBuilder.AppendLine();
+            }
+            else
+            {
+                stringBuilder.AppendLine("Todas cantoneiras com aço G nos arquivos da Pasta B");
+                stringBuilder.AppendLine();
             }
 
             return true;

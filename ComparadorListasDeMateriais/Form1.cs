@@ -29,8 +29,10 @@ namespace ComparadorListasDeMateriais
         public Form1()
         {
             InitializeComponent();
-            labelDescricaoPrograma.Text = "Ferramenta para comparar listas de materiais. É possível comparar listas em formato xls/xlsx (Excel) " + "\r\n"+
-                "ou listas em txt. Não é necessário que as duas listas estejam no mesmo formato.";
+            labelDescricaoPrograma.Text = "Comparar listas em formato xls/xlsx (Excel) ou listas em txt." + "\r\n"+
+                "Não é necessário que as duas listas estejam no mesmo formato." + "\r\n" + "\r\n" +
+                "TEMPORÁRIO: Para comparação de arquivos CAM, selecionar um arquivo de cada pasta e " + "\r\n" +
+                "escolher a opção de salvar em txt.";
         }
 
         private void buttonArquivo1_Click(object sender, EventArgs e)
@@ -48,14 +50,12 @@ namespace ComparadorListasDeMateriais
 
         private void buttonComparar_Click(object sender, EventArgs e)
         {
-            List<string> arquivosA = Directory.GetFiles(caminhoArquivo1).Where(x => x.Split(".".ToCharArray()).Last().Equals("CAM")).ToList();
-
             string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado;
 
-            if (caminhoArquivo1.Contains("CAM"))
+            if (Path.GetExtension(caminhoArquivo1).Contains("CAM"))
             {
-                caminhoArquivo1 = Path.GetFullPath(caminhoArquivo1);
-                caminhoArquivo2 = Path.GetFullPath(caminhoArquivo2);
+                caminhoArquivo1 = caminhoArquivo1.Replace(Path.GetFileName(caminhoArquivo1), "");
+                caminhoArquivo2 = caminhoArquivo2.Replace(Path.GetFileName(caminhoArquivo2), "");
 
                 FuncoesComparadorCAM.ComparaArquivosCAM(ModelagemTorre.FabricanteEnum.Brametal, caminhoArquivo1, caminhoArquivo2, out StringBuilder strBuilder);
 
