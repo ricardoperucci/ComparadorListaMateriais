@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Comparador.cs" />
+    <Compile Include="ComparadorCAM\EstaticosComparacaoCAM.cs" />
     <Compile Include="ComparadorCAM\FuncoesComparadorCAM.cs" />
     <Compile Include="Excel.cs" />
     <Compile Include="Form1.cs">

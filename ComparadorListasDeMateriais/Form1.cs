@@ -57,7 +57,13 @@ namespace ComparadorListasDeMateriais
                 caminhoArquivo1 = caminhoArquivo1.Replace(Path.GetFileName(caminhoArquivo1), "");
                 caminhoArquivo2 = caminhoArquivo2.Replace(Path.GetFileName(caminhoArquivo2), "");
 
-                FuncoesComparadorCAM.ComparaArquivosCAM(ModelagemTorre.FabricanteEnum.Brametal, caminhoArquivo1, caminhoArquivo2, out StringBuilder strBuilder);
+                //FALTANDO COLOCAR INPUT PRA PEGAR O FABRICANTE PRA CADA PASTA
+                FuncoesComparadorCAM.ComparaArquivosCAM(
+                    ModelagemTorre.FabricanteEnum.Padrao, 
+                    ModelagemTorre.FabricanteEnum.Brametal,
+                    caminhoArquivo1, 
+                    caminhoArquivo2, 
+                    out StringBuilder strBuilder);
 
                 string nome = arquivoResultado + ".txt";
 

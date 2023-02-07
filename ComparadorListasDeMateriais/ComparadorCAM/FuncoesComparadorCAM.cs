@@ -1,6 +1,7 @@
 ﻿using Hefesto.CAM;
 using Hefesto.CAM.ComparacaoArquivos;
 using ModelagemTorre;
+using ModelagemTorre.ObjetosCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,8 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
     public static class FuncoesComparadorCAM
     {
         public static bool ComparaArquivosCAM(
-            FabricanteEnum pFabricante,
+            FabricanteEnum pFabricanteA,
+            FabricanteEnum pFabricanteB,
             string pCaminhoPastaCamA,
             string pCaminhoPastaCamB,
             out StringBuilder stringBuilder)
@@ -31,7 +33,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 string posicaoCAM = FuncoesLeituraCAMTxt.PosicaoNomeArquivoCAM(arquivo, out string posicaoCAMSemMaterial);
 
-                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricante);
+                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricanteA);
 
                 dicObjetosLeituraCamA.Add(posicaoCAMSemMaterial, objetoLeituraCAM);
             }
@@ -42,7 +44,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 string posicaoCAM = FuncoesLeituraCAMTxt.PosicaoNomeArquivoCAM(arquivo, out string posicaoCAMSemMaterial);
 
-                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricante);
+                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricanteB);
 
                 dicObjetosLeituraCamB.Add(posicaoCAMSemMaterial, objetoLeituraCAM);
             }
@@ -85,24 +87,79 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
             List<string> cantoneirasSemGlistaA = new List<string>();
             List<string> cantoneirasSemGlistaB = new List<string>();
 
+            List<string> furosForaPadraolistaA = new List<string>();
+            List<string> furosForaPadraolistaB = new List<string>();
+
+            bool furosNoPadrao(List<FuroCAM> ppListaFuros, FabricanteEnum ppFabricante)
+            {
+                var listaDiametrosPadrao = EstaticosComparacaoCAM.GetListaDiametrosPadrao(ppFabricante);
+
+                foreach(FuroCAM furo in ppListaFuros)
+                {
+                    if (!listaDiametrosPadrao.Contains(furo.Diametro))
+                        return false;
+                }
+
+                return true;
+            }
+
             foreach (string pos in dicObjetosLeituraCamA.Keys)
             {
                 if (!dicObjetosLeituraCamB.ContainsKey(pos))
                     continue;
 
-                if(dicObjetosLeituraCamA[pos] is CantoneiraLeituraCAMTxt cant && !cant.Material.Contains("GR60"))
+                if(dicObjetosLeituraCamA[pos] is CantoneiraLeituraCAMTxt cant)
                 {
-                    cantoneirasSemGlistaA.Add(pos);
+                    if(!cant.Material.Contains("GR60"))
+                        cantoneirasSemGlistaA.Add(pos);
+
+                    if (!furosNoPadrao(cant.ListaFurosAba1, pFabricanteA))
+                        furosForaPadraolistaA.Add(pos);
+                    else if (!furosNoPadrao(cant.ListaFurosAba2, pFabricanteA))
+                        furosForaPadraolistaA.Add(pos);
                 }
-                if (dicObjetosLeituraCamB[pos] is CantoneiraLeituraCAMTxt cantb && !cantb.Material.Contains("GR60"))
+
+                else if(dicObjetosLeituraCamA[pos] is ChapaLeituraCAMTxt chapa)
                 {
-                    cantoneirasSemGlistaB.Add(pos);
+                    if (!furosNoPadrao(chapa.ListaFurosCAM, pFabricanteA))
+                        furosForaPadraolistaA.Add(pos);
+                }
+
+                if (dicObjetosLeituraCamB[pos] is CantoneiraLeituraCAMTxt cantb)
+                {
+                    if (!cantb.Material.Contains("GR60"))
+                        cantoneirasSemGlistaB.Add(pos);
+
+                    if (!furosNoPadrao(cantb.ListaFurosAba1, pFabricanteB))
+                        furosForaPadraolistaB.Add(pos);
+                    else if (!furosNoPadrao(cantb.ListaFurosAba2, pFabricanteB))
+                        furosForaPadraolistaB.Add(pos);
+                }
+
+                else if (dicObjetosLeituraCamB[pos] is ChapaLeituraCAMTxt chapaB)
+                {
+                    if (!furosNoPadrao(chapaB.ListaFurosCAM, pFabricanteB))
+                        furosForaPadraolistaB.Add(pos);
                 }
 
                 var listaDifsPosicao = dicObjetosLeituraCamA[pos].CompararComObjeto(dicObjetosLeituraCamB[pos]);
 
                 if (listaDifsPosicao.Count == 0)
                     continue;
+
+                //TEMPORARIO PRA BCSL APAGAR DEPOIS
+                if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
+                    continue;
+
+                if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
+                    continue;
+
+                if (listaDifsPosicao.Count == 2 && 
+                    (listaDifsPosicao.Any(x => x.Contains("17.5 => 18")) || listaDifsPosicao.Any(x => x.Contains("20.6 => 21"))) &&
+                    listaDifsPosicao.Any(x => x.ToLower().Contains("material")))
+                    continue;
+
+                //ATÉ AQUI
 
                 divergencias.Add(pos, listaDifsPosicao);
             }
@@ -142,6 +199,30 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
             else
             {
                 stringBuilder.AppendLine("Todas cantoneiras com aço G nos arquivos da Pasta B");
+                stringBuilder.AppendLine();
+            }
+
+            if (furosForaPadraolistaA.Count > 0)
+            {
+                stringBuilder.AppendLine("Peças com furo diferente do padrão da fábrica nos arquivos da Pasta A");
+                stringBuilder.AppendLine(string.Join(", ", furosForaPadraolistaA));
+                stringBuilder.AppendLine();
+            }
+            else
+            {
+                stringBuilder.AppendLine("Todas peças com furo dentro do padrão da fábrica nos arquivos da Pasta A");
+                stringBuilder.AppendLine();
+            }
+
+            if (furosForaPadraolistaB.Count > 0)
+            {
+                stringBuilder.AppendLine("Peças com furo diferente do padrão da fábrica nos arquivos da Pasta B");
+                stringBuilder.AppendLine(string.Join(", ", furosForaPadraolistaB));
+                stringBuilder.AppendLine();
+            }
+            else
+            {
+                stringBuilder.AppendLine("Todas peças com furo dentro do padrão da fábrica nos arquivos da Pasta B");
                 stringBuilder.AppendLine();
             }
 
