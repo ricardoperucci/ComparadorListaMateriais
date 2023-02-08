@@ -21,6 +21,11 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
             string pCaminhoPastaCamB,
             out StringBuilder stringBuilder)
         {
+            DialogResult dr = MessageBox.Show("Comparar diametros furos?", "Atenção", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            bool considerarDiametro = dr == DialogResult.Yes;
+
             List<string> arquivosCamA = Directory.GetFiles(pCaminhoPastaCamA).Where(x => x.Split(".".ToCharArray()).Last().Equals("CAM")).ToList();
             List<string> arquivosCamB = Directory.GetFiles(pCaminhoPastaCamB).Where(x => x.Split(".".ToCharArray()).Last().Equals("CAM")).ToList();
 
@@ -90,17 +95,26 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
             List<string> furosForaPadraolistaA = new List<string>();
             List<string> furosForaPadraolistaB = new List<string>();
 
-            bool furosNoPadrao(List<FuroCAM> ppListaFuros, FabricanteEnum ppFabricante)
+            bool furosNoPadrao(List<FuroCAM> ppListaFuros, FabricanteEnum ppFabricante, out List<double> ppDiametrosFora)
             {
+                ppDiametrosFora = new List<double>();
+
                 var listaDiametrosPadrao = EstaticosComparacaoCAM.GetListaDiametrosPadrao(ppFabricante);
+
+                bool estaNoPadrao = true;
 
                 foreach(FuroCAM furo in ppListaFuros)
                 {
                     if (!listaDiametrosPadrao.Contains(furo.Diametro))
-                        return false;
+                    {
+                        ppDiametrosFora.Add(furo.Diametro);
+                        estaNoPadrao = false;
+                    }
                 }
 
-                return true;
+                ppDiametrosFora = ppDiametrosFora.Distinct().ToList();
+
+                return estaNoPadrao;
             }
 
             foreach (string pos in dicObjetosLeituraCamA.Keys)
@@ -113,16 +127,16 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
                     if(!cant.Material.Contains("GR60"))
                         cantoneirasSemGlistaA.Add(pos);
 
-                    if (!furosNoPadrao(cant.ListaFurosAba1, pFabricanteA))
-                        furosForaPadraolistaA.Add(pos);
-                    else if (!furosNoPadrao(cant.ListaFurosAba2, pFabricanteA))
-                        furosForaPadraolistaA.Add(pos);
+                    if (!furosNoPadrao(cant.ListaFurosAba1, pFabricanteA, out List<double> diametrosFora))
+                        furosForaPadraolistaA.Add($"{pos} ({string.Join(";", diametrosFora)})");
+                    else if (!furosNoPadrao(cant.ListaFurosAba2, pFabricanteA, out List<double> diametrosFora2))
+                        furosForaPadraolistaA.Add($"{pos} ({string.Join(";", diametrosFora2)})");
                 }
 
                 else if(dicObjetosLeituraCamA[pos] is ChapaLeituraCAMTxt chapa)
                 {
-                    if (!furosNoPadrao(chapa.ListaFurosCAM, pFabricanteA))
-                        furosForaPadraolistaA.Add(pos);
+                    if (!furosNoPadrao(chapa.ListaFurosCAM, pFabricanteA, out List<double> diametrosFora))
+                        furosForaPadraolistaA.Add($"{pos} ({string.Join(";", diametrosFora)})");
                 }
 
                 if (dicObjetosLeituraCamB[pos] is CantoneiraLeituraCAMTxt cantb)
@@ -130,19 +144,20 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
                     if (!cantb.Material.Contains("GR60"))
                         cantoneirasSemGlistaB.Add(pos);
 
-                    if (!furosNoPadrao(cantb.ListaFurosAba1, pFabricanteB))
-                        furosForaPadraolistaB.Add(pos);
-                    else if (!furosNoPadrao(cantb.ListaFurosAba2, pFabricanteB))
-                        furosForaPadraolistaB.Add(pos);
+                    if (!furosNoPadrao(cantb.ListaFurosAba1, pFabricanteB, out List<double> diametrosFora))
+                        furosForaPadraolistaB.Add($"{pos} ({string.Join(";", diametrosFora)})");
+
+                    else if (!furosNoPadrao(cantb.ListaFurosAba2, pFabricanteB, out List<double> diametrosFora2))
+                        furosForaPadraolistaB.Add($"{pos} ({string.Join(";", diametrosFora2)})");
                 }
 
                 else if (dicObjetosLeituraCamB[pos] is ChapaLeituraCAMTxt chapaB)
                 {
-                    if (!furosNoPadrao(chapaB.ListaFurosCAM, pFabricanteB))
-                        furosForaPadraolistaB.Add(pos);
+                    if (!furosNoPadrao(chapaB.ListaFurosCAM, pFabricanteB, out List<double> diametrosFora))
+                        furosForaPadraolistaB.Add($"{pos} ({string.Join(";", diametrosFora)})");
                 }
 
-                var listaDifsPosicao = dicObjetosLeituraCamA[pos].CompararComObjeto(dicObjetosLeituraCamB[pos]);
+                var listaDifsPosicao = dicObjetosLeituraCamA[pos].CompararComObjeto(dicObjetosLeituraCamB[pos], considerarDiametro);
 
                 if (listaDifsPosicao.Count == 0)
                     continue;
@@ -154,7 +169,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
                 if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
                     continue;
 
-                if (listaDifsPosicao.Count == 2 && 
+                if (listaDifsPosicao.Count == 2 &&
                     (listaDifsPosicao.Any(x => x.Contains("17.5 => 18")) || listaDifsPosicao.Any(x => x.Contains("20.6 => 21"))) &&
                     listaDifsPosicao.Any(x => x.ToLower().Contains("material")))
                     continue;

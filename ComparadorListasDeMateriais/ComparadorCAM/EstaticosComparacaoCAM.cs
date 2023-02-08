@@ -9,9 +9,9 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 {
     public static class EstaticosComparacaoCAM
     {
-        private static List<double> _DiametrosPadraoBrametal = new List<double> { 14.3, 18, 21 };
+        private static List<double> _DiametrosPadraoBrametal = new List<double> { 14.7, 18, 21 };
 
-        private static List<double> _DiametrosPadraoPadrao = new List<double> { 14.7, 17.5, 20.6 };
+        private static List<double> _DiametrosPadraoPadrao = new List<double> { 14.3, 17.5, 20.6 };
 
         public static List<double> GetListaDiametrosPadrao(FabricanteEnum pFabricante)
         {
