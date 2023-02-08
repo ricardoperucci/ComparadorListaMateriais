@@ -163,16 +163,16 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
                     continue;
 
                 //TEMPORARIO PRA BCSL APAGAR DEPOIS
-                if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
-                    continue;
+                //if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
+                //    continue;
 
-                if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
-                    continue;
+                //if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
+                //    continue;
 
-                if (listaDifsPosicao.Count == 2 &&
-                    (listaDifsPosicao.Any(x => x.Contains("17.5 => 18")) || listaDifsPosicao.Any(x => x.Contains("20.6 => 21"))) &&
-                    listaDifsPosicao.Any(x => x.ToLower().Contains("material")))
-                    continue;
+                //if (listaDifsPosicao.Count == 2 &&
+                //    (listaDifsPosicao.Any(x => x.Contains("17.5 => 18")) || listaDifsPosicao.Any(x => x.Contains("20.6 => 21"))) &&
+                //    listaDifsPosicao.Any(x => x.ToLower().Contains("material")))
+                //    continue;
 
                 //ATÉ AQUI
 
