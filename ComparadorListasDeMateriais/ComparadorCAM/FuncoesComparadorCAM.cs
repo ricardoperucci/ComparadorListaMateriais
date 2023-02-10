@@ -38,7 +38,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 string posicaoCAM = FuncoesLeituraCAMTxt.PosicaoNomeArquivoCAM(arquivo, out string posicaoCAMSemMaterial);
 
-                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricanteA);
+                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricanteA, arquivo);
 
                 dicObjetosLeituraCamA.Add(posicaoCAMSemMaterial, objetoLeituraCAM);
             }
@@ -49,7 +49,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 string posicaoCAM = FuncoesLeituraCAMTxt.PosicaoNomeArquivoCAM(arquivo, out string posicaoCAMSemMaterial);
 
-                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricanteB);
+                ObjetoLeituraCAMTxt objetoLeituraCAM = FuncoesLeituraCAMTxt.CriaObjetoLeituraCAM(camSalvo, posicaoCAM, pFabricanteB, arquivo);
 
                 dicObjetosLeituraCamB.Add(posicaoCAMSemMaterial, objetoLeituraCAM);
             }
@@ -162,19 +162,6 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
                 if (listaDifsPosicao.Count == 0)
                     continue;
 
-                //TEMPORARIO PRA BCSL APAGAR DEPOIS
-                //if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
-                //    continue;
-
-                //if (listaDifsPosicao.Count == 1 && (listaDifsPosicao.First().Contains("17.5 => 18") || listaDifsPosicao.First().Contains("20.6 => 21")))
-                //    continue;
-
-                //if (listaDifsPosicao.Count == 2 &&
-                //    (listaDifsPosicao.Any(x => x.Contains("17.5 => 18")) || listaDifsPosicao.Any(x => x.Contains("20.6 => 21"))) &&
-                //    listaDifsPosicao.Any(x => x.ToLower().Contains("material")))
-                //    continue;
-
-                //ATÉ AQUI
 
                 divergencias.Add(pos, listaDifsPosicao);
             }
