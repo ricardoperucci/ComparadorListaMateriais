@@ -225,10 +225,10 @@ namespace ComparadorListasDeMateriais
                         string caminhoNovo = "";
                         for (int i = 0; i < split.Length - 1; i++)
                         {
-                            caminhoNovo += split[i];
+                            caminhoNovo += split[i] + ".";
                         }
 
-                        caminhoNovo += ".zip";
+                        caminhoNovo += "zip";
                         using (ZipArchive zip = ZipFile.Open(caminhoNovo, ZipArchiveMode.Create))
                         {
                             zip.CreateEntryFromFile(arquivo, nome);
