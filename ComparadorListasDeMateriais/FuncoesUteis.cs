@@ -140,6 +140,17 @@ namespace ComparadorListasDeMateriais
             return dicObjetosPorEstrutura;
         }
 
+        public static List<string> DivideTextoPorLinhas(string pTextoCam)
+        {
+            List<string> textoCamSplitTemp = pTextoCam.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList(); //"\r\n".ToCharArray()
+
+            List<string> textoCamSplit = new List<string>();
+
+            textoCamSplitTemp.ForEach(x => textoCamSplit.AddRange(x.Split(new string[] { "\n" }, StringSplitOptions.None)));
+
+            return textoCamSplit;
+        }
+
         /// <summary>
         /// A partir das listas de string que representam cada linha da lista de material em Excel, cria os objetosComparacaoLista para cada estrutura
         /// </summary>
@@ -252,6 +263,33 @@ namespace ComparadorListasDeMateriais
             }
 
             return isEstrutura;
+        }
+
+        public static string LerTxtLisaMateriais(string pCaminho)
+        {
+            string textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.UTF8);
+
+            if (!VerificaCaracteresCertos(textoLista))
+                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.ASCII);
+            if (!VerificaCaracteresCertos(textoLista))
+                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.Default);
+            if (!VerificaCaracteresCertos(textoLista))
+                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.UTF32);
+            if (!VerificaCaracteresCertos(textoLista))
+                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.UTF7);
+
+            return textoLista;
+        }
+        public static bool VerificaCaracteresCertos(string pTextoLido)
+        {
+            if ((pTextoLido.ToLower().Contains("extens") && !pTextoLido.ToLower().Contains("extensão") && !pTextoLido.ToLower().Contains("extensao")) ||
+                (pTextoLido.ToLower().Contains("cabe") && !pTextoLido.ToLower().Contains("cabeça") && !pTextoLido.ToLower().Contains("cabeca")) ||
+                pTextoLido.Contains("Ã£") || pTextoLido.Contains("?"))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public static List<List<string>>[] LerExcelVariasAbas(string pCaminho, string[] pAba)

@@ -124,7 +124,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 if(dicObjetosLeituraCamA[pos] is CantoneiraLeituraCAMTxt cant)
                 {
-                    if(!cant.Material.Contains("GR60"))
+                    if(!cant.MaterialCAM.Contains("GR60"))
                         cantoneirasSemGlistaA.Add(pos);
 
                     if (!furosNoPadrao(cant.ListaFurosAba1, pFabricanteA, out List<double> diametrosFora))
@@ -141,7 +141,7 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
                 if (dicObjetosLeituraCamB[pos] is CantoneiraLeituraCAMTxt cantb)
                 {
-                    if (!cantb.Material.Contains("GR60"))
+                    if (!cantb.MaterialCAM.Contains("GR60"))
                         cantoneirasSemGlistaB.Add(pos);
 
                     if (!furosNoPadrao(cantb.ListaFurosAba1, pFabricanteB, out List<double> diametrosFora))

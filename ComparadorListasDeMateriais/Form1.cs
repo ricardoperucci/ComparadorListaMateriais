@@ -63,8 +63,8 @@ namespace ComparadorListasDeMateriais
 
                 //FALTANDO COLOCAR INPUT PRA PEGAR O FABRICANTE PRA CADA PASTA
                 FuncoesComparadorCAM.ComparaArquivosCAM(
-                    ModelagemTorre.FabricanteEnum.Padrao,
-                    ModelagemTorre.FabricanteEnum.Brametal,
+                    ModelagemTorre.FabricanteEnum.CAW,
+                    ModelagemTorre.FabricanteEnum.CAW,
                     caminhoArquivo1,
                     caminhoArquivo2,
                     out StringBuilder strBuilder);

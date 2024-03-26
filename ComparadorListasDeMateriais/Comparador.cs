@@ -77,9 +77,10 @@ namespace ComparadorListasDeMateriais
             }
             else if (pCaminho.ToLower().Contains(".txt"))
             {
-                string textoLista = System.IO.File.ReadAllText(pCaminho);
 
-                List<string> linhasLista = textoLista.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
+                string textoLista = FuncoesUteis.LerTxtLisaMateriais(pCaminho);
+
+                List<string> linhasLista = FuncoesUteis.DivideTextoPorLinhas(textoLista);
 
                 dicMateriais = FuncoesUteis.CriaObjetosComparacaoListaByTxt(linhasLista);
             }
@@ -91,6 +92,7 @@ namespace ComparadorListasDeMateriais
              
             return dicMateriais;
         }
+
 
         public List<string> EstruturasComuns(Dictionary<string, List<ObjetoComparacaoLista>> pLista1, Dictionary<string, List<ObjetoComparacaoLista>> pLista2, out List<string> estruturasSoNa1, out List<string> estruturasSoNa2)
         {
