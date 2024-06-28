@@ -125,7 +125,15 @@ namespace ComparadorListasDeMateriais.ObjetosLista
 
         public void SalvarInformacoesObjetoByLinhaTxt(string pLinhaTxt, string pEstrutura)
         {
-            string linhaCorrigida = pLinhaTxt.PadRight(70);
+            string linhaCorrigida = pLinhaTxt.PadRight(70).Replace("calota", "   ");
+
+            int inicioRecs = 38;
+            if(pLinhaTxt.Contains("calota"))
+            {
+                int inicio = linhaCorrigida.IndexOf("0 0 0");
+
+                inicioRecs = inicio - 1;
+            }
 
             this.Estrutura = pEstrutura;
 
@@ -135,10 +143,10 @@ namespace ComparadorListasDeMateriais.ObjetosLista
 
             this.NumeracaoSemMaterial = this.NumeracaoComMaterial.ToLower().Last().Equals('h') || this.NumeracaoComMaterial.ToLower().Last().Equals('g') ? this.NumeracaoComMaterial.Remove(this.NumeracaoComMaterial.Count() - 1) : this.NumeracaoComMaterial;
 
-            this.QuantidadeRecortes = System.Convert.ToInt32(linhaCorrigida.Substring(38, 2).Replace(" ", ""));
-            this.QuantidadeDobras = System.Convert.ToInt32(linhaCorrigida.Substring(40, 2).Replace(" ", ""));
+            this.QuantidadeRecortes = System.Convert.ToInt32(linhaCorrigida.Substring(inicioRecs, 2).Replace(" ", ""));
+            this.QuantidadeDobras = System.Convert.ToInt32(linhaCorrigida.Substring(inicioRecs + 2, 2).Replace(" ", ""));
             //this.QuantidadeChanfros = System.Convert.ToInt32(pLinhaTxt.Substring(42, 5).Replace(" ", ""));
-            this.QuantidadeChanfros = System.Convert.ToInt32(linhaCorrigida.Substring(42, 2).Replace(" ", ""));
+            this.QuantidadeChanfros = System.Convert.ToInt32(linhaCorrigida.Substring(inicioRecs + 4, 2).Replace(" ", ""));
 
             if (this.NumeracaoComMaterial.Contains("439"))
             {
