@@ -19,10 +19,13 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
             FabricanteEnum pFabricanteB,
             string pCaminhoPastaCamA,
             string pCaminhoPastaCamB,
+            ParafusoTipoEnum pParafusoTipoEnum,
             out StringBuilder stringBuilder)
         {
             DialogResult dr = MessageBox.Show("Comparar diametros furos?", "Atenção", 
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            ParafusoController.Instance.AtualizaParafusoController(pParafusoTipoEnum, pFabricanteA);
 
             bool considerarDiametro = dr == DialogResult.Yes;
 
