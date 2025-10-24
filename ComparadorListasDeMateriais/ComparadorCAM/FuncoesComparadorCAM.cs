@@ -29,8 +29,8 @@ namespace ComparadorListasDeMateriais.ComparadorCAM
 
             bool considerarDiametro = dr == DialogResult.Yes;
 
-            List<string> arquivosCamA = Directory.GetFiles(pCaminhoPastaCamA).Where(x => x.Split(".".ToCharArray()).Last().Equals("CAM")).ToList();
-            List<string> arquivosCamB = Directory.GetFiles(pCaminhoPastaCamB).Where(x => x.Split(".".ToCharArray()).Last().Equals("CAM")).ToList();
+            List<string> arquivosCamA = Directory.GetFiles(pCaminhoPastaCamA).Where(x => x.Split(".".ToCharArray()).Last().ToUpper().Equals("CAM")).ToList();
+            List<string> arquivosCamB = Directory.GetFiles(pCaminhoPastaCamB).Where(x => x.Split(".".ToCharArray()).Last().ToUpper().Equals("CAM")).ToList();
 
             Dictionary<string, ObjetoLeituraCAMTxt> dicObjetosLeituraCamA = new Dictionary<string, ObjetoLeituraCAMTxt>();
             Dictionary<string, ObjetoLeituraCAMTxt> dicObjetosLeituraCamB = new Dictionary<string, ObjetoLeituraCAMTxt>();

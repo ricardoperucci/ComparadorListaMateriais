@@ -56,7 +56,7 @@ namespace ComparadorListasDeMateriais
         {
             string arquivoResultado = caminhoSalvarResultado + "\\" + nomeArquivoResultado;
 
-            if (Path.GetExtension(caminhoArquivo1).Contains("CAM"))
+            if (Path.GetExtension(caminhoArquivo1).ToUpper().Contains("CAM"))
             {
                 caminhoArquivo1 = caminhoArquivo1.Replace(Path.GetFileName(caminhoArquivo1), "");
                 caminhoArquivo2 = caminhoArquivo2.Replace(Path.GetFileName(caminhoArquivo2), "");
