@@ -265,20 +265,45 @@ namespace ComparadorListasDeMateriais
             return isEstrutura;
         }
 
+        private static Encoding _windows1252;
+
+        /// <summary>
+        /// Encoding Windows-1252 (ANSI). No .NET 8 os code pages legados precisam ser registrados
+        /// (System.Text.Encoding.CodePages); no .NET Framework isso vinha em Encoding.Default.
+        /// </summary>
+        private static Encoding Windows1252
+        {
+            get
+            {
+                if (_windows1252 == null)
+                {
+                    try { Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance); }
+                    catch { /* já registrado ou indisponível */ }
+
+                    try { _windows1252 = Encoding.GetEncoding(1252); }
+                    catch { _windows1252 = Encoding.GetEncoding("ISO-8859-1"); }
+                }
+
+                return _windows1252;
+            }
+        }
+
         public static string LerTxtLisaMateriais(string pCaminho)
         {
-            string textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.UTF8);
+            // 1) UTF-8 (cobre arquivos modernos e detecta BOM UTF-8/UTF-16 automaticamente).
+            string textoUtf8 = System.IO.File.ReadAllText(pCaminho, Encoding.UTF8);
+            if (VerificaCaracteresCertos(textoUtf8))
+                return textoUtf8;
 
-            if (!VerificaCaracteresCertos(textoLista))
-                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.ASCII);
-            if (!VerificaCaracteresCertos(textoLista))
-                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.Default);
-            if (!VerificaCaracteresCertos(textoLista))
-                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.UTF32);
-            if (!VerificaCaracteresCertos(textoLista))
-                textoLista = System.IO.File.ReadAllText(pCaminho, Encoding.UTF7);
+            // 2) Windows-1252 / ANSI: listas legadas brasileiras gravam acentos em byte único.
+            //    No .NET Framework isto era Encoding.Default; no .NET 8 Default virou UTF-8, então
+            //    a leitura ANSI precisa ser explícita (senão "CABEÇA"/"EXTENSÃO" viram lixo e o parse quebra).
+            string textoAnsi = System.IO.File.ReadAllText(pCaminho, Windows1252);
+            if (VerificaCaracteresCertos(textoAnsi))
+                return textoAnsi;
 
-            return textoLista;
+            // 3) Heurística inconclusiva: ANSI é o palpite mais seguro para listas legadas.
+            return textoAnsi;
         }
         public static bool VerificaCaracteresCertos(string pTextoLido)
         {

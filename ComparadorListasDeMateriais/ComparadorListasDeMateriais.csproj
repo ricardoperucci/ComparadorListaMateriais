@@ -22,9 +22,11 @@
     <EmbeddedResource Include="Resources\Template.xlsx" />
   </ItemGroup>
 
-  <!-- Pacotes. System.Configuration.ConfigurationManager habilita Properties/Settings (ApplicationSettingsBase) no .NET 8. -->
+  <!-- Pacotes. System.Configuration.ConfigurationManager habilita Properties/Settings (ApplicationSettingsBase) no .NET 8.
+       System.Text.Encoding.CodePages habilita Windows-1252 (no .NET 8 os code pages legados não vêm por padrão). -->
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <!-- Bibliotecas Hefesto/ModelagemTorre (.NET 8) e MathNet, na pasta de deploy. -->

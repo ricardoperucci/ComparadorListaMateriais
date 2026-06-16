@@ -105,6 +105,10 @@ Cada pasta tem um `LEIAME.md` com detalhes. Enquanto vazias, os testes ficam **I
 2. **Excel (Office Interop)** — via `COMReference` (`WrapperTool=primary`). Requer Excel + PIAs registrados.
 3. **AutoCAD** — a leitura de `.CAM` é parsing de texto; se algum caminho da HefestoCAM exigir AutoCAD,
    valide com os arquivos reais de exemplo.
+4. **Encoding de listas .txt** — listas legadas vêm em **Windows-1252 (ANSI)**. No .NET 8, `Encoding.Default`
+   passou a ser UTF-8, o que quebrava a leitura (acentos viravam lixo → erro de parse). `FuncoesUteis.LerTxtLisaMateriais`
+   agora tenta UTF-8 e cai para Windows-1252 explícito (pacote `System.Text.Encoding.CodePages`). Coberto por
+   `LeituraTxtEncodingTests`.
 
 ---
 
