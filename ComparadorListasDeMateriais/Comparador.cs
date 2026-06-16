@@ -19,12 +19,12 @@ namespace ComparadorListasDeMateriais
     {
 
         /// <summary>
-        /// Compara as duas listas
+        /// Compara as duas listas a partir dos caminhos dos arquivos (Excel ou txt).
+        /// Faz a leitura/parse e delega a comparação para a sobrecarga testável.
         /// </summary>
-        /// <param name="pCaminho1"></param>
-        /// <param name="pCaminho2"></param>
-        /// <param name="resultado"></param>
-        /// <returns></returns>
+        /// <param name="pCaminho1">Caminho da lista original.</param>
+        /// <param name="pCaminho2">Caminho da lista nova.</param>
+        /// <param name="resultado">Saída com o resultado estruturado da comparação.</param>
         public bool CompararListas(string pCaminho1, string pCaminho2, out ObjetoResultadoComparacao resultado)
         {
             ObjetoCabecalho cabecalho = new ObjetoCabecalho(pCaminho1, pCaminho2);
@@ -32,6 +32,23 @@ namespace ComparadorListasDeMateriais
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais1 = CriaObjetosComparacaoLista(pCaminho1);
             Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais2 = CriaObjetosComparacaoLista(pCaminho2);
 
+            return CompararListas(listaMateriais1, listaMateriais2, cabecalho, out resultado);
+        }
+
+        /// <summary>
+        /// Sobrecarga testável: compara estruturas já carregadas em memória, sem tocar em arquivos/Excel.
+        /// É o núcleo da comparação de listas e pode ser exercitado diretamente por testes unitários.
+        /// </summary>
+        /// <param name="listaMateriais1">Estruturas da lista original, indexadas pelo nome da estrutura.</param>
+        /// <param name="listaMateriais2">Estruturas da lista nova, indexadas pelo nome da estrutura.</param>
+        /// <param name="cabecalho">Cabeçalho do relatório.</param>
+        /// <param name="resultado">Saída com o resultado estruturado da comparação.</param>
+        public bool CompararListas(
+            Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais1,
+            Dictionary<string, List<ObjetoComparacaoLista>> listaMateriais2,
+            ObjetoCabecalho cabecalho,
+            out ObjetoResultadoComparacao resultado)
+        {
             List<DivergenciaEntreEstruturaLista> divergenciasMesmaLista = new List<DivergenciaEntreEstruturaLista>();
 
             divergenciasMesmaLista.AddRange(ComparaEstruturasUmaLista(listaMateriais1, "Lista Original"));

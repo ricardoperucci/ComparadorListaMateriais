@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refatoração — Comparador de Listas de Materiais (refat2026)</title>
+<style>
+  :root{
+    --ink:#1b2330; --muted:#5b6675; --line:#e3e7ee; --bg:#f6f7f9; --card:#fff;
+    --accent:#1f6feb; --accent-soft:#e8f0fe; --ok:#1a7f4b; --ok-soft:#e6f4ec;
+    --warn:#9a6700; --warn-soft:#fff4d6; --code:#0f172a; --codebg:#0f172a; --codefg:#e6edf3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px 80px;}
+  header.hero{background:linear-gradient(135deg,#10243f,#1f6feb);color:#fff;border-radius:16px;
+    padding:34px 36px;box-shadow:0 10px 30px rgba(16,36,63,.18);}
+  header.hero h1{margin:0 0 6px;font-size:28px;letter-spacing:-.3px;}
+  header.hero p{margin:0;opacity:.92;font-size:15px;}
+  .badges{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;}
+  .badge{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+    padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;}
+  .badge.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent;}
+  h2{margin:42px 0 14px;font-size:21px;letter-spacing:-.2px;padding-bottom:8px;border-bottom:2px solid var(--line);}
+  h3{margin:26px 0 8px;font-size:16px;}
+  p,li{color:var(--ink);}
+  .muted{color:var(--muted);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0;
+    box-shadow:0 1px 2px rgba(16,36,63,.04);}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14.5px;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#fafbfc;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
+  code{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;
+    background:#eef1f5;padding:1px 6px;border-radius:5px;color:#0b3d91;}
+  pre{background:var(--codebg);color:var(--codefg);border-radius:12px;padding:18px 20px;overflow:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.55;}
+  pre .c{color:#7d8590}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;vertical-align:middle;}
+  .tag.new{background:var(--accent-soft);color:var(--accent);}
+  .tag.mod{background:var(--warn-soft);color:var(--warn);}
+  .note{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 10px 10px 0;margin:14px 0;}
+  .note.warn{border-color:#d9a400;background:var(--warn-soft);}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;margin:6px 0 2px;}
+  .flow .b{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:600;}
+  .flow .arr{color:var(--muted);}
+  ul.tight{margin:6px 0 6px 2px;padding-left:18px}
+  ul.tight li{margin:3px 0}
+  .foot{margin-top:50px;text-align:center;color:var(--muted);font-size:13px;}
+  .kbd{font-family:monospace;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Refatoração — Comparador de Listas de Materiais</h1>
+    <p>Branch <code style="background:rgba(255,255,255,.18);color:#fff">refat2026-claude01</code> · separação por abas, lógica testável (TDD) e uso limpo da HefestoCAM 2026.</p>
+    <div class="badges">
+      <span class="badge ok">✓ Solução compila</span>
+      <span class="badge ok">✓ 37/37 testes unitários verdes</span>
+      <span class="badge">.NET 8 (net8.0-windows)</span>
+      <span class="badge">WinForms · 3 abas</span>
+      <span class="badge">MSTest</span>
+    </div>
+  </header>
+
+  <h2>1. Visão geral</h2>
+  <p>O programa compara <strong>listas de materiais</strong> (Excel/txt) de torres e também
+  <strong>arquivos CAM</strong> entre duas pastas. Antes, a comparação de CAM era um “puxadinho”
+  escondido no botão de comparar listas: se o arquivo selecionado tivesse <code>CAM</code> na extensão,
+  o fluxo desviava para a comparação CAM — com fabricante e tipo de parafuso <em>fixos no código</em>
+  e um <code>MessageBox</code> perguntando se considerava o diâmetro dos furos.</p>
+  <p>A refatoração: <strong>uma aba por funcionalidade</strong>, a lógica extraída do formulário para
+  classes testáveis, o uso da HefestoCAM concentrado em um adaptador, e a base coberta por testes
+  automatizados seguindo TDD.</p>
+
+  <h2>2. Problemas encontrados (e resolvidos)</h2>
+  <table>
+    <tr><th>Problema</th><th>Solução</th></tr>
+    <tr><td>Comparação de CAM disfarçada na aba de listas (hack por extensão de arquivo).</td><td>Aba própria <strong>“Comparar Arquivos CAM”</strong>.</td></tr>
+    <tr><td>Fabricante (CAW/CAW) e parafuso (A394CM) <em>fixos no código</em>.</td><td>Inputs na UI (combos de fabricante A/B e tipo de parafuso).</td></tr>
+    <tr><td><code>MessageBox</code> dentro da lógica de comparação → impossível testar.</td><td>Opção “considerar diâmetro” virou um <em>checkbox</em>/parâmetro (<code>OpcoesComparacaoCAM</code>).</td></tr>
+    <tr><td>Chamada quebrada contra a HefestoCAM 2026: <code>PosicaoNomeArquivoCAM</code> passou a exigir o <code>FabricanteEnum</code>.</td><td>Adaptador atualizado para a assinatura nova de 3 argumentos.</td></tr>
+    <tr><td><strong>HefestoCAM é .NET 8</strong>; o app era .NET Framework 4.8 → CAM compilava mas <em>não rodava</em>.</td><td><strong>Migração para net8.0-windows</strong> (ver seção 5).</td></tr>
+    <tr><td>Lógica de comparação, geração de relatório e ZIP acopladas ao <code>Form1</code>.</td><td>Extraídas para serviços puros e testáveis.</td></tr>
+    <tr><td>Rótulo trocado no relatório CAM (“Pasta A” onde era “Pasta B”).</td><td>Corrigido em <code>RelatorioCAMTxt</code>.</td></tr>
+  </table>
+
+  <h2>3. As três abas</h2>
+  <div class="grid">
+    <div class="card"><h3>① Comparar Listas</h3><p class="muted">Lista original × nova (Excel/txt). Salva relatório em txt e/ou Excel (PMV). <strong>Sem</strong> o desvio por extensão.</p></div>
+    <div class="card"><h3>② Comparar Arquivos CAM</h3><p class="muted">Duas pastas de <code>.CAM</code>, com fabricante A/B, tipo de parafuso e “considerar diâmetro”. Usa os objetos da HefestoCAM.</p></div>
+    <div class="card"><h3>③ ZIP Arquivos</h3><p class="muted">Compacta arquivos selecionados — um zip por arquivo ou todos no mesmo zip.</p></div>
+  </div>
+
+  <h2>4. Arquitetura da comparação CAM (testável)</h2>
+  <p>A dependência da HefestoCAM ficou isolada em <strong>um único ponto</strong> (o adaptador de leitura),
+  e a regra de negócio virou código puro, fácil de testar:</p>
+  <div class="flow">
+    <span class="b">Form1 (aba CAM)</span><span class="arr">→</span>
+    <span class="b">FuncoesComparadorCAM <span class="muted">(fachada)</span></span><span class="arr">→</span>
+    <span class="b">ComparadorCAMService</span>
+  </div>
+  <div class="flow" style="margin-left:8px">
+    <span class="arr">↳ usa</span>
+    <span class="b">ILeitorPastaCAM → LeitorPastaCAMHefesto <span class="muted">(única classe que fala com a HefestoCAM)</span></span>
+  </div>
+  <div class="flow" style="margin-left:8px">
+    <span class="arr">↳ aplica</span>
+    <span class="b">RegrasComparacaoCAM <span class="muted">(puro)</span></span>
+    <span class="arr">→</span>
+    <span class="b">ResultadoComparacaoCAM</span>
+    <span class="arr">→</span>
+    <span class="b">RelatorioCAMTxt <span class="muted">(texto)</span></span>
+  </div>
+  <p class="muted" style="margin-top:12px">Como o <code>ComparadorCAMService</code> depende da <em>interface</em> <code>ILeitorPastaCAM</code>,
+  dá para testá-lo com um leitor falso (<code>FakeLeitorPastaCAM</code>) sem precisar de arquivos reais.</p>
+
+  <h2>5. Migração para .NET 8</h2>
+  <div class="note warn">
+    <strong>Por quê?</strong> <code>HefestoCAM.dll</code> e <code>ModelagemTorre.ObjetosCore.dll</code> são
+    <code>.NETCoreApp,Version=v8.0</code>. Um processo .NET Framework 4.8 <em>compila</em> contra elas, mas
+    <strong>não as carrega em runtime</strong> — o teste reproduziu o erro
+    <code>FileNotFoundException: System.Runtime, Version=8.0.0.0</code>. Para a comparação de CAM
+    <em>rodar</em>, o app precisa ser .NET 8.
+  </div>
+  <ul class="tight">
+    <li><code>.csproj</code> reescrito em formato SDK, <code>net8.0-windows</code> + <code>UseWindowsForms</code>, plataforma x64.</li>
+    <li>Pacotes embutidos no framework (System.IO.Compression, System.ValueTuple) removidos; Office via <code>COMReference</code>.</li>
+    <li><code>Excel.cs</code> ajustado: <code>Marshal.GetActiveObject</code> (removido no .NET moderno) reimplementado por P/Invoke; alias para resolver o conflito <code>Excel.Range</code> × <code>System.Range</code>.</li>
+  </ul>
+  <div class="note">⚠️ <strong>Pré-requisito:</strong> as máquinas que rodam o app precisam do <strong>.NET 8 Desktop Runtime</strong> instalado.</div>
+
+  <h2>6. Testes (TDD)</h2>
+  <p>Projeto <code>ComparadorListasDeMateriais.Testes</code> (MSTest). <strong>Unitários puros rodam sempre</strong>;
+  os de <strong>integração</strong> ficam <em>Inconclusivos</em> (não falham) até você colocar as instâncias de exemplo.</p>
+  <table>
+    <tr><th>Suíte</th><th>Cobre</th><th>Precisa de dados?</th></tr>
+    <tr><td><code>FuncoesUteisTests</code></td><td>Normalização de nomes/posições, acentos, melhoria, split de linhas</td><td>Não</td></tr>
+    <tr><td><code>ComparacaoListaObjetosTests</code></td><td>Comparação Chapa/Cantoneira (tipo, largura, comprimento, perfil)</td><td>Não</td></tr>
+    <tr><td><code>ComparadorListasTests</code></td><td>Orquestração de listas em memória (divergências, posições/estruturas só em uma lista)</td><td>Não</td></tr>
+    <tr><td><code>RegrasComparacaoCAMTests</code></td><td>Furos fora do padrão, aço G, posições faltando</td><td>Não</td></tr>
+    <tr><td><code>RelatorioCAMTxtTests</code> / <code>RelatorioListasTxtTests</code></td><td>Geração de texto dos relatórios</td><td>Não</td></tr>
+    <tr><td><code>ZipadorArquivosTests</code></td><td>Zip único / por arquivo / nome do zip</td><td>Não (pasta temp)</td></tr>
+    <tr><td><code>ComparadorCAMServiceTests</code></td><td>Orquestração CAM com leitor falso</td><td>Não (usa HefestoCAM)</td></tr>
+    <tr><td><code>ComparadorCAMIntegracaoTests</code></td><td>Ponta a ponta CAM com arquivos reais</td><td><strong>Sim →</strong> <code>DadosTeste\CAM\PastaA</code> e <code>PastaB</code></td></tr>
+    <tr><td><code>ComparadorListasArquivosIntegracaoTests</code></td><td>Ponta a ponta listas (txt e Excel)</td><td><strong>Sim →</strong> <code>DadosTeste\Listas</code> e <code>DadosTeste\Excel</code></td></tr>
+  </table>
+  <div class="note ok" style="border-left:4px solid var(--ok);background:var(--ok-soft)">
+    Status validado nesta máquina: <strong>37/37 testes unitários aprovados</strong> em net8.0-windows.
+  </div>
+
+  <h3>Onde colocar as instâncias amanhã</h3>
+  <pre><span class="c"># cada pasta tem um LEIAME.md com instruções</span>
+ComparadorListasDeMateriais.Testes/DadosTeste/
+├─ Listas/        <span class="c"># 2 .txt: 01-original.txt, 02-nova.txt</span>
+├─ CAM/PastaA/    <span class="c"># arquivos .CAM (fábrica A)</span>
+├─ CAM/PastaB/    <span class="c"># arquivos .CAM (fábrica B)</span>
+└─ Excel/         <span class="c"># 2 .xls/.xlsx (requer Excel instalado)</span></pre>
+
+  <h2>7. Estrutura final do código</h2>
+  <pre>ComparadorListaMateriais/
+├─ ComparadorListasDeMateriais.sln          <span class="c">// + projeto de testes</span>
+├─ PLANO-EXECUCAO-REFAT2026.md              <span class="tag new">novo</span>
+├─ REFATORACAO-REFAT2026.html               <span class="tag new">novo</span>
+│
+├─ ComparadorListasDeMateriais/             <span class="c">// app WinForms .NET 8</span>
+│  ├─ ComparadorListasDeMateriais.csproj    <span class="tag mod">SDK net8.0-windows</span>
+│  ├─ Program.cs
+│  ├─ Form1.cs / Form1.Designer.cs          <span class="tag mod">3 abas; sem hack de extensão</span>
+│  ├─ Comparador.cs                         <span class="tag mod">+ sobrecarga testável</span>
+│  ├─ FuncoesUteis.cs                        <span class="tag mod">EscreveTxt delega ao relatório</span>
+│  ├─ Excel.cs                              <span class="tag mod">correções .NET 8</span>
+│  ├─ ComparadorCAM/
+│  │  ├─ OpcoesComparacaoCAM.cs             <span class="tag new">novo</span>
+│  │  ├─ RegrasComparacaoCAM.cs             <span class="tag new">novo — regras puras</span>
+│  │  ├─ ResultadoComparacaoCAM.cs          <span class="tag new">novo</span>
+│  │  ├─ ILeitorPastaCAM.cs                 <span class="tag new">novo — porta</span>
+│  │  ├─ LeitorPastaCAMHefesto.cs           <span class="tag new">novo — adaptador HefestoCAM</span>
+│  │  ├─ ComparadorCAMService.cs            <span class="tag new">novo — orquestração</span>
+│  │  ├─ RelatorioCAMTxt.cs                 <span class="tag new">novo — relatório</span>
+│  │  ├─ EstaticosComparacaoCAM.cs
+│  │  └─ FuncoesComparadorCAM.cs            <span class="tag mod">fachada (sem MessageBox)</span>
+│  ├─ Relatorios/RelatorioListasTxt.cs      <span class="tag new">novo — extraído</span>
+│  ├─ Utils/ZipadorArquivos.cs              <span class="tag new">novo — extraído</span>
+│  ├─ ObjetosLista/                          <span class="c">// + ctors sem parâmetro p/ testes</span>
+│  ├─ ObjetosResultados/  (+ ObjetosDivergencias/)
+│  ├─ Properties/  ·  Resources/
+│
+└─ ComparadorListasDeMateriais.Testes/      <span class="tag new">novo projeto (MSTest .NET 8)</span>
+   ├─ Unitarios/        <span class="c">// 7 suítes puras</span>
+   ├─ Integracao/       <span class="c">// CAM, listas txt/Excel</span>
+   ├─ Infra/            <span class="c">// CaminhosTeste, ConstrutoresTeste, FakeLeitorPastaCAM</span>
+   └─ DadosTeste/       <span class="c">// Listas, CAM/PastaA, CAM/PastaB, Excel (+ LEIAME.md)</span></pre>
+
+  <h2>8. Como buildar e rodar</h2>
+  <p>Use o <strong>MSBuild do Visual Studio</strong> (o <code>dotnet build</code> falha por causa dos
+  <code>COMReference</code> do Office). O mais simples é abrir a <code>.sln</code> no VS e dar Build.</p>
+  <pre><span class="c"># build da solução</span>
+MSBuild.exe ComparadorListasDeMateriais.sln -restore -t:Build -p:Configuration=Debug
+
+<span class="c"># rodar testes (Test Explorer do VS, ou:)</span>
+vstest.console.exe ComparadorListasDeMateriais.Testes\bin\Debug\net8.0-windows\ComparadorListasDeMateriais.Testes.dll /Platform:x64</pre>
+  <p class="muted">Passo a passo completo e o ciclo TDD estão em <code>PLANO-EXECUCAO-REFAT2026.md</code>.</p>
+
+  <h2>9. Pontos de atenção</h2>
+  <ul class="tight">
+    <li><strong>ParafusoController:</strong> <code>AtualizaParafusoController</code> é <code>internal</code>; a chamada usa reflexão para não depender de <code>InternalsVisibleTo</code>. Se virar público, simplifique para chamada direta.</li>
+    <li><strong>Excel:</strong> via COM — requer Excel + PIAs registrados na máquina.</li>
+    <li><strong>Runtime:</strong> .NET 8 Desktop Runtime instalado nas máquinas de uso.</li>
+    <li><strong>Furos fora do padrão:</strong> comparação por igualdade exata de diâmetro (mantido como no original); avaliar tolerância no futuro.</li>
+  </ul>
+
+  <div class="foot">Gerado para a branch <code>refat2026-claude01</code> · Comparador de Listas de Materiais.</div>
+</div>
+</body>
+</html>

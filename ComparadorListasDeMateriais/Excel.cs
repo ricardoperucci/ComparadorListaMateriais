@@ -7,6 +7,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using Microsoft.Office.Interop.Excel;
+// .NET 8: System.Range passou a existir e conflita com Excel.Range; o alias resolve a ambiguidade.
+using Range = Microsoft.Office.Interop.Excel.Range;
 
 namespace ComparadorListasDeMateriais
 {
@@ -22,6 +24,23 @@ namespace ComparadorListasDeMateriais
 
     internal static class ExcelInterop
     {
+        // .NET 8: Marshal.GetActiveObject foi removido; reimplementado via P/Invoke (oleaut32/ole32).
+        [System.Runtime.InteropServices.DllImport("oleaut32.dll", PreserveSig = false)]
+        private static extern void GetActiveObject(ref System.Guid rclsid, System.IntPtr pvReserved,
+            [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.IUnknown)] out object ppunk);
+
+        [System.Runtime.InteropServices.DllImport("ole32.dll", PreserveSig = false)]
+        private static extern void CLSIDFromProgID(
+            [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string lpszProgID,
+            out System.Guid lpclsid);
+
+        private static object GetActiveObjectByProgId(string progId)
+        {
+            CLSIDFromProgID(progId, out System.Guid clsid);
+            GetActiveObject(ref clsid, System.IntPtr.Zero, out object instancia);
+            return instancia;
+        }
+
         private static Microsoft.Office.Interop.Excel.Application _app;
         public static Microsoft.Office.Interop.Excel.Application App
         {
@@ -56,7 +75,7 @@ namespace ComparadorListasDeMateriais
 
             try
             {
-                excel = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
+                excel = (Microsoft.Office.Interop.Excel.Application)GetActiveObjectByProgId("Excel.Application");
             }
             catch (COMException e)
             {

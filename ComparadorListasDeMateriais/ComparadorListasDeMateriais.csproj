@@ -1,154 +1,52 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{30E9CDBD-A8C3-4257-86F5-412470DAAB6A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
+    <!-- refat2026: migrado de net48 para net8.0-windows para usar a HefestoCAM (.NET 8) em runtime. -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>ComparadorListasDeMateriais</RootNamespace>
     <AssemblyName>ComparadorListasDeMateriais</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Platforms>AnyCPU;x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- Mantém o Properties/AssemblyInfo.cs existente (evita atributos duplicados). -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
+  <!-- Template .xlsx embutido (usado por FuncoesUteis.GetResourceFileStream("Template")). -->
+  <ItemGroup>
+    <None Remove="Resources\Template.xlsx" />
+    <EmbeddedResource Include="Resources\Template.xlsx" />
+  </ItemGroup>
+
+  <!-- Pacotes. System.Configuration.ConfigurationManager habilita Properties/Settings (ApplicationSettingsBase) no .NET 8. -->
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- Bibliotecas Hefesto/ModelagemTorre (.NET 8) e MathNet, na pasta de deploy. -->
   <ItemGroup>
     <Reference Include="HefestoCAM">
       <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\HefestoCAM.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.4.9.0\lib\net461\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Spatial, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Spatial.0.5.0\lib\net461\MathNet.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
     <Reference Include="ModelagemTorre.ObjetosCore">
       <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\ModelagemTorre.ObjetosCore.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
+    <Reference Include="ModelagemTorre">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\ModelagemTorre.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    <Reference Include="MathNet.Spatial">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\MathNet.Spatial.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Comparador.cs" />
-    <Compile Include="ComparadorCAM\EstaticosComparacaoCAM.cs" />
-    <Compile Include="ComparadorCAM\FuncoesComparadorCAM.cs" />
-    <Compile Include="Excel.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FuncoesUteis.cs" />
-    <Compile Include="ObjetosResultados\EnumErrosPosicao.cs" />
-    <Compile Include="ObjetosResultados\ErroPosicao.cs" />
-    <Compile Include="ObjetosResultados\EstruturaComparacao.cs" />
-    <Compile Include="ObjetosResultados\ObjetoCabecalho.cs" />
-    <Compile Include="ObjetosResultados\ObjetoResultadoComparacao.cs" />
-    <Compile Include="ObjetosLista\CantoneiraComparacaoLista.cs" />
-    <Compile Include="ObjetosLista\ChapaComparacaoLista.cs" />
-    <Compile Include="ObjetosLista\ObjetoComparacaoLista.cs" />
-    <Compile Include="ObjetosLista\ParafusoComparacaoLista.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaChanfros.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaComprimento.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaConjuntoSoldado.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaDegrau.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaDiametroCalota.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaEntreEstruturaLista.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaEspessura.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaEsquerda.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaFuroCalota.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaLargura.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaMaterial.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaPecasTipo.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaPerfilCantoneira.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaQuantidadeDobras.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaQuantidadePecas.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaQuantidadeRecortes.cs" />
-    <Compile Include="ObjetosResultados\ObjetosDivergencias\DivergenciaRaioUsinagemCalota.cs" />
-    <Compile Include="ObjetosResultados\PosicaoComparacao.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Resources\Template.xlsx" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\LogoEEC.png" />
-  </ItemGroup>
+
+  <!-- Interop do Office (Excel) via COM. Requer Excel + PIAs registrados na máquina. -->
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">
       <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
@@ -156,17 +54,17 @@
       <VersionMinor>8</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="Microsoft.Office.Interop.Excel1">
+    <COMReference Include="Microsoft.Office.Interop.Excel">
       <Guid>{00020813-0000-0000-C000-000000000046}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>9</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
     <COMReference Include="VBIDE">
       <Guid>{0002E157-0000-0000-C000-000000000046}</Guid>
@@ -174,10 +72,9 @@
       <VersionMinor>3</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

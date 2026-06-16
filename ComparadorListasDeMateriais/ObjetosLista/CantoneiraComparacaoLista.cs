@@ -15,6 +15,15 @@ namespace ComparadorListasDeMateriais.ObjetosLista
         public string PerfilSimples { get; set; }
 
         public bool PinoEstaiada { get; set; }
+
+        /// <summary>
+        /// Construtor sem parâmetros — permite montar a cantoneira definindo as propriedades diretamente
+        /// (útil em testes unitários de comparação, sem depender do parse de Excel/txt).
+        /// </summary>
+        public CantoneiraComparacaoLista()
+        {
+        }
+
         //Construtor pra lista em EXCEL
         public CantoneiraComparacaoLista(List<string> pLinhaExcel, string pEstrutura)
         {

@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- net8.0-windows para casar com o projeto principal (WinForms) e carregar a HefestoCAM (.NET 8). -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <PlatformTarget>x64</PlatformTarget>
+    <RootNamespace>ComparadorListasDeMateriais.Testes</RootNamespace>
+    <AssemblyName>ComparadorListasDeMateriais.Testes</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Frameworks de teste (restaurados via NuGet). -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.4.3" />
+  </ItemGroup>
+
+  <!-- Projeto sob teste. -->
+  <ItemGroup>
+    <ProjectReference Include="..\ComparadorListasDeMateriais\ComparadorListasDeMateriais.csproj" />
+  </ItemGroup>
+
+  <!--
+    Referências diretas usadas pelos testes que tocam tipos da HefestoCAM/ModelagemTorre
+    (ex.: FabricanteEnum, ObjetoLeituraCAMTxt). CopyLocal=true (padrão) garante que as DLLs e suas
+    dependências fiquem no bin de teste. No .NET 8, ZipArchive/ZipFile já vêm no framework (sem Reference).
+  -->
+  <ItemGroup>
+    <Reference Include="HefestoCAM">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\HefestoCAM.dll</HintPath>
+    </Reference>
+    <Reference Include="ModelagemTorre">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\ModelagemTorre.dll</HintPath>
+    </Reference>
+    <Reference Include="ModelagemTorre.ObjetosCore">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\ModelagemTorre.ObjetosCore.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Spatial">
+      <HintPath>..\..\..\..\..\Engetower\ModelagemTorre3D\MathNet.Spatial.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Dados de teste (instâncias de exemplo) copiados para a saída de build. -->
+  <ItemGroup>
+    <None Update="DadosTeste\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

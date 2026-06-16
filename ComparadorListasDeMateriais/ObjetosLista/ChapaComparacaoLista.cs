@@ -18,6 +18,14 @@ namespace ComparadorListasDeMateriais.ObjetosLista
         public double RaioUsinagemCalota { get; set; }
 
         /// <summary>
+        /// Construtor sem parâmetros — permite montar a chapa definindo as propriedades diretamente
+        /// (útil em testes unitários de comparação, sem depender do parse de Excel/txt).
+        /// </summary>
+        public ChapaComparacaoLista()
+        {
+        }
+
+        /// <summary>
         /// Construtor para lista em EXCEL
         /// </summary>
         /// <param name="pLinhaExcel"></param>
