@@ -76,6 +76,10 @@
   <p>A refatoração: <strong>uma aba por funcionalidade</strong>, a lógica extraída do formulário para
   classes testáveis, o uso da HefestoCAM concentrado em um adaptador, e a base coberta por testes
   automatizados seguindo TDD.</p>
+  <p>A tela foi <strong>retematizada seguindo o tema CLARO do Hefesto</strong> (tokens de
+  <code>Hefesto.Tools/WPF/Tema/Cores.Claro.xaml</code> espelhados em <code>UI/TemaHefesto.cs</code>):
+  cabeçalho com logo e sublinhado accent (<code>#1A73C7</code>), abas escuras-claras com aba ativa
+  destacada, botões primário (accent) e secundários, campos/combos e tipografia Segoe UI.</p>
 
   <h2>2. Problemas encontrados (e resolvidos)</h2>
   <table>
@@ -186,6 +190,7 @@ ComparadorListasDeMateriais.Testes/DadosTeste/
 │  │  └─ FuncoesComparadorCAM.cs            <span class="tag mod">fachada (sem MessageBox)</span>
 │  ├─ Relatorios/RelatorioListasTxt.cs      <span class="tag new">novo — extraído</span>
 │  ├─ Utils/ZipadorArquivos.cs              <span class="tag new">novo — extraído</span>
+│  ├─ UI/TemaHefesto.cs                     <span class="tag new">novo — tema claro Hefesto</span>
 │  ├─ ObjetosLista/                          <span class="c">// + ctors sem parâmetro p/ testes</span>
 │  ├─ ObjetosResultados/  (+ ObjetosDivergencias/)
 │  ├─ Properties/  ·  Resources/

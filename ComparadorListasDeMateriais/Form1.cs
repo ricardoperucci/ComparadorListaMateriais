@@ -1,9 +1,11 @@
 using ComparadorListasDeMateriais.ComparadorCAM;
 using ComparadorListasDeMateriais.ObjetosResultados;
+using ComparadorListasDeMateriais.UI;
 using ComparadorListasDeMateriais.Utils;
 using ModelagemTorre;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -28,6 +30,9 @@ namespace ComparadorListasDeMateriais
         // ---- Estado da aba "ZIP Arquivos" ----
         private List<string> ListaArquivosZipar;
 
+        // ---- Cabeçalho (tema Hefesto) ----
+        private Panel panelCabecalho;
+
         public Form1()
         {
             InitializeComponent();
@@ -38,6 +43,105 @@ namespace ComparadorListasDeMateriais
                 "Para comparar arquivos CAM, use a aba \"Comparar Arquivos CAM\".";
 
             PreencherCombosCAM();
+            AplicarTema();
+        }
+
+        /// <summary>
+        /// Aplica o tema escuro do Hefesto a toda a tela (cabeçalho com sublinhado accent, abas escuras,
+        /// botões primários/secundários, campos e rótulos).
+        /// </summary>
+        private void AplicarTema()
+        {
+            TemaHefesto.AplicarNoFormulario(this);
+            this.ClientSize = new Size(910, 552);
+
+            MontarCabecalho();
+
+            // Abas escuras (owner-draw), reposicionadas abaixo do cabeçalho.
+            TemaHefesto.EstilizarTabControl(tabControlPrincipal);
+            tabControlPrincipal.Location = new Point(12, panelCabecalho.Height + 8);
+            tabControlPrincipal.Size = new Size(886, this.ClientSize.Height - tabControlPrincipal.Top - 10);
+
+            // ---- Aba Comparar Listas ----
+            Descricao(labelDescricaoPrograma);
+            labelDescricaoPrograma.Location = new Point(20, 16);
+            TemaHefesto.BotaoSecundario(buttonArquivo1);
+            TemaHefesto.BotaoSecundario(buttonArquivo2);
+            TemaHefesto.BotaoSecundario(buttonSelecionaPasta);
+            TemaHefesto.BotaoPrimario(buttonComparar);
+            TemaHefesto.Terciario(labelArquivo1);
+            TemaHefesto.Terciario(labelArquivo2);
+            TemaHefesto.Terciario(labelPastaResultado);
+            TemaHefesto.Rotulo(labelTextResult);
+            TemaHefesto.Campo(textBoxNomeResult);
+            TemaHefesto.CheckTema(checkBoxTxt);
+            TemaHefesto.CheckTema(checkBoxExcel);
+
+            // ---- Aba Comparar Arquivos CAM ----
+            Descricao(labelCAMInstrucoes);
+            TemaHefesto.BotaoSecundario(buttonPastaCamA);
+            TemaHefesto.BotaoSecundario(buttonPastaCamB);
+            TemaHefesto.BotaoSecundario(buttonPastaResultadoCam);
+            TemaHefesto.BotaoPrimario(buttonCompararCam);
+            TemaHefesto.Terciario(labelPastaCamA);
+            TemaHefesto.Terciario(labelPastaCamB);
+            TemaHefesto.Terciario(labelPastaResultadoCam);
+            TemaHefesto.Rotulo(labelFabricanteA);
+            TemaHefesto.Rotulo(labelFabricanteB);
+            TemaHefesto.Rotulo(labelParafusoTipo);
+            TemaHefesto.Rotulo(labelNomeResultadoCam);
+            TemaHefesto.Campo(comboFabricanteA);
+            TemaHefesto.Campo(comboFabricanteB);
+            TemaHefesto.Campo(comboParafusoTipo);
+            TemaHefesto.Campo(textBoxNomeResultadoCam);
+            TemaHefesto.CheckTema(checkBoxConsiderarDiametro);
+
+            // ---- Aba ZIP Arquivos ----
+            TemaHefesto.BotaoSecundario(buttonSelecionaArquivosZIP);
+            TemaHefesto.BotaoPrimario(buttonCriarZips);
+            TemaHefesto.Terciario(labelArquivosSelecionadosZIP);
+            TemaHefesto.CheckTema(checkBoxZip);
+        }
+
+        private static void Descricao(Label l)
+        {
+            l.ForeColor = TemaHefesto.TextoSecundario;
+            l.Font = TemaHefesto.FontePequena;
+            l.BackColor = Color.Transparent;
+        }
+
+        /// <summary>Monta a barra de cabeçalho (logo + título), com o sublinhado accent do tema.</summary>
+        private void MontarCabecalho()
+        {
+            panelCabecalho = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 64,
+                BackColor = TemaHefesto.FundoCabecalho
+            };
+            panelCabecalho.Paint += (s, e) =>
+            {
+                using (var caneta = new Pen(TemaHefesto.Accent, 2))
+                    e.Graphics.DrawLine(caneta, 0, panelCabecalho.Height - 1, panelCabecalho.Width, panelCabecalho.Height - 1);
+            };
+
+            // Reaproveita o logo existente, movendo-o do tab1 para o cabeçalho.
+            pictureBox1.Parent = panelCabecalho;
+            pictureBox1.BackColor = TemaHefesto.FundoCabecalho;
+            pictureBox1.Location = new Point(16, 9);
+            pictureBox1.Size = new Size(50, 46);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+
+            var titulo = new Label { Text = "Comparador de Listas de Materiais", AutoSize = true, Location = new Point(80, 12) };
+            TemaHefesto.Titulo(titulo);
+
+            var subtitulo = new Label { Text = "Engetower · Hefesto", AutoSize = true, Location = new Point(82, 40) };
+            TemaHefesto.Subtitulo(subtitulo);
+
+            panelCabecalho.Controls.Add(titulo);
+            panelCabecalho.Controls.Add(subtitulo);
+            this.Controls.Add(panelCabecalho);
+            panelCabecalho.BringToFront();
         }
 
         /// <summary>
