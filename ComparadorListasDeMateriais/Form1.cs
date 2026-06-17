@@ -1,4 +1,5 @@
 using ComparadorListasDeMateriais.ComparadorCAM;
+using ComparadorListasDeMateriais.DiffCamTextual;
 using ComparadorListasDeMateriais.ObjetosResultados;
 using ComparadorListasDeMateriais.UI;
 using ComparadorListasDeMateriais.Utils;
@@ -57,7 +58,10 @@ namespace ComparadorListasDeMateriais
 
             MontarCabecalho();
 
-            // Abas escuras (owner-draw), reposicionadas abaixo do cabeçalho.
+            // Aba extra (montada em código), antes de estilizar para entrar no owner-draw.
+            MontarAbaDiffCam();
+
+            // Abas (owner-draw), reposicionadas abaixo do cabeçalho.
             TemaHefesto.EstilizarTabControl(tabControlPrincipal);
             tabControlPrincipal.Location = new Point(12, panelCabecalho.Height + 8);
             tabControlPrincipal.Size = new Size(886, this.ClientSize.Height - tabControlPrincipal.Top - 10);
@@ -142,6 +146,122 @@ namespace ComparadorListasDeMateriais
             panelCabecalho.Controls.Add(subtitulo);
             this.Controls.Add(panelCabecalho);
             panelCabecalho.BringToFront();
+        }
+
+        // =====================================================================
+        //  Aba: Diff CAM (HTML)  — comparação textual de pastas .CAM (porta do estudo CAMUSA)
+        // =====================================================================
+
+        private string caminhoDiffAntes;
+        private string caminhoDiffDepois;
+        private Label labelDiffPastaAntes;
+        private Label labelDiffPastaDepois;
+        private Label labelDiffStatus;
+
+        /// <summary>Monta, em código, a aba de diff textual de CAM (gera relatório HTML).</summary>
+        private void MontarAbaDiffCam()
+        {
+            var pagina = new TabPage("Diff CAM (HTML)") { BackColor = TemaHefesto.FundoJanela };
+
+            var instrucoes = new Label
+            {
+                Text = "Compara duas pastas de arquivos .CAM linha a linha (textual) e gera um relatório HTML " +
+                       "com as diferenças por arquivo, resumos por tag e inventários, destacando deltas > 0,8 mm. " +
+                       "O relatório é salvo na pasta \"depois\" e aberto no navegador.",
+                Location = new Point(20, 16),
+                Size = new Size(820, 46),
+                AutoSize = false
+            };
+            Descricao(instrucoes);
+
+            var btnAntes = new Button { Text = "Selecionar pasta ORIGINAL (antes)", Location = new Point(20, 72), Size = new Size(270, 30) };
+            TemaHefesto.BotaoSecundario(btnAntes);
+            btnAntes.Click += (s, e) =>
+            {
+                string p = SelecionaPasta();
+                if (p == null) return;
+                caminhoDiffAntes = p;
+                labelDiffPastaAntes.Text = NomePasta(p);
+            };
+
+            labelDiffPastaAntes = new Label { Text = "Nenhuma pasta selecionada", Location = new Point(306, 78), AutoSize = true };
+            TemaHefesto.Terciario(labelDiffPastaAntes);
+
+            var btnDepois = new Button { Text = "Selecionar pasta ALTERADA (depois)", Location = new Point(20, 112), Size = new Size(270, 30) };
+            TemaHefesto.BotaoSecundario(btnDepois);
+            btnDepois.Click += (s, e) =>
+            {
+                string p = SelecionaPasta();
+                if (p == null) return;
+                caminhoDiffDepois = p;
+                labelDiffPastaDepois.Text = NomePasta(p);
+            };
+
+            labelDiffPastaDepois = new Label { Text = "Nenhuma pasta selecionada", Location = new Point(306, 118), AutoSize = true };
+            TemaHefesto.Terciario(labelDiffPastaDepois);
+
+            var btnGerar = new Button { Text = "Gerar relatório HTML", Location = new Point(20, 170), Size = new Size(270, 44) };
+            TemaHefesto.BotaoPrimario(btnGerar);
+            btnGerar.Click += (s, e) => GerarDiffCam();
+
+            labelDiffStatus = new Label { Text = "", Location = new Point(20, 232), Size = new Size(820, 44), AutoSize = false };
+            TemaHefesto.Terciario(labelDiffStatus);
+
+            pagina.Controls.Add(instrucoes);
+            pagina.Controls.Add(btnAntes);
+            pagina.Controls.Add(labelDiffPastaAntes);
+            pagina.Controls.Add(btnDepois);
+            pagina.Controls.Add(labelDiffPastaDepois);
+            pagina.Controls.Add(btnGerar);
+            pagina.Controls.Add(labelDiffStatus);
+
+            tabControlPrincipal.TabPages.Add(pagina);
+        }
+
+        private void GerarDiffCam()
+        {
+            if (string.IsNullOrWhiteSpace(caminhoDiffAntes) || string.IsNullOrWhiteSpace(caminhoDiffDepois))
+            {
+                MessageBox.Show("Selecione as pastas ORIGINAL (antes) e ALTERADA (depois).");
+                return;
+            }
+
+            if (!Directory.Exists(caminhoDiffAntes) || !Directory.Exists(caminhoDiffDepois))
+            {
+                MessageBox.Show("Uma das pastas selecionadas não existe.");
+                return;
+            }
+
+            if (string.Equals(Path.GetFullPath(caminhoDiffAntes), Path.GetFullPath(caminhoDiffDepois), StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("As duas pastas selecionadas são iguais. Selecione pastas diferentes.");
+                return;
+            }
+
+            string htmlPath = Path.Combine(caminhoDiffDepois, $"relatorio-diff_{DateTime.Now:yyyyMMdd_HHmmss}.html");
+
+            try
+            {
+                UseWaitCursor = true;
+
+                ResultadoDiffCam resultado = GeradorHtmlDiffCam.Gerar(caminhoDiffAntes, caminhoDiffDepois, htmlPath);
+
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(htmlPath) { UseShellExecute = true });
+
+                labelDiffStatus.ForeColor = TemaHefesto.Accent;
+                labelDiffStatus.Text = $"Concluído: {resultado.Comuns} comuns, {resultado.Alterados} alterados, " +
+                                       $"{resultado.SoNoAntes} só no antes, {resultado.SoNoDepois} só no depois. Relatório aberto.";
+            }
+            catch (Exception ex)
+            {
+                labelDiffStatus.ForeColor = Color.Firebrick;
+                labelDiffStatus.Text = "Erro ao gerar o relatório.";
+                MessageBox.Show($"Ocorreu um erro ao gerar o diff: {ex.Message}");
+            }
+            finally
+            {
+                UseWaitCursor = false;
+            }
         }
 
         /// <summary>
