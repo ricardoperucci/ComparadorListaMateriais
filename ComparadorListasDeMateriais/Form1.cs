@@ -1,4 +1,5 @@
 using ComparadorListasDeMateriais.ComparadorCAM;
+using ComparadorListasDeMateriais.ComparadorV2;
 using ComparadorListasDeMateriais.DiffCamTextual;
 using ComparadorListasDeMateriais.ObjetosResultados;
 using ComparadorListasDeMateriais.UI;
@@ -58,8 +59,10 @@ namespace ComparadorListasDeMateriais
 
             MontarCabecalho();
 
-            // Aba extra (montada em código), antes de estilizar para entrar no owner-draw.
+            // Abas extras (montadas em código), antes de estilizar para entrarem no owner-draw.
+            MontarAbaComparadorV2();
             MontarAbaDiffCam();
+            MontarAbaRenomear();
 
             // Abas (owner-draw), reposicionadas abaixo do cabeçalho.
             TemaHefesto.EstilizarTabControl(tabControlPrincipal);
@@ -146,6 +149,180 @@ namespace ComparadorListasDeMateriais
             panelCabecalho.Controls.Add(subtitulo);
             this.Controls.Add(panelCabecalho);
             panelCabecalho.BringToFront();
+        }
+
+        // =====================================================================
+        //  Aba: Comparar Listas v2
+        // =====================================================================
+
+        private string caminhoV2Original;
+        private string caminhoV2Nova;
+        private string caminhoV2Saida;
+        private Label labelV2Original;
+        private Label labelV2Nova;
+        private Label labelV2Pasta;
+        private TextBox textBoxV2Nome;
+        private CheckBox checkBoxV2Txt;
+        private CheckBox checkBoxV2Html;
+        private Label labelV2Status;
+
+        /// <summary>
+        /// Monta, em código, a aba do comparador de listas v2 — o que muda em relação à aba antiga
+        /// é o pareamento (reconhece troca de material na mesma posição, 65H → 65G) e os relatórios.
+        /// </summary>
+        private void MontarAbaComparadorV2()
+        {
+            var pagina = new TabPage("Comparar Listas v2") { BackColor = TemaHefesto.FundoJanela };
+
+            var instrucoes = new Label
+            {
+                Text = "Compara duas listas (xls/xlsx ou txt) reconhecendo troca de material na mesma posição: " +
+                       "65H que virou 65G aparece como material alterado, e não como uma posição eliminada mais uma nova. " +
+                       "Gera um relatório em txt e um em HTML, este último com as duas listas lado a lado.",
+                Location = new Point(20, 16),
+                Size = new Size(820, 46),
+                AutoSize = false
+            };
+            Descricao(instrucoes);
+
+            var btnOriginal = new Button { Text = "Selecionar lista ORIGINAL", Location = new Point(20, 72), Size = new Size(270, 30) };
+            TemaHefesto.BotaoSecundario(btnOriginal);
+            btnOriginal.Click += (s, e) =>
+            {
+                string caminho = SelecionaArquivo();
+                if (caminho == null) return;
+                caminhoV2Original = caminho;
+                labelV2Original.Text = Path.GetFileName(caminho);
+            };
+
+            labelV2Original = new Label { Text = "Nenhuma lista selecionada", Location = new Point(306, 78), AutoSize = true };
+            TemaHefesto.Terciario(labelV2Original);
+
+            var btnNova = new Button { Text = "Selecionar lista NOVA", Location = new Point(20, 112), Size = new Size(270, 30) };
+            TemaHefesto.BotaoSecundario(btnNova);
+            btnNova.Click += (s, e) =>
+            {
+                string caminho = SelecionaArquivo();
+                if (caminho == null) return;
+                caminhoV2Nova = caminho;
+                labelV2Nova.Text = Path.GetFileName(caminho);
+            };
+
+            labelV2Nova = new Label { Text = "Nenhuma lista selecionada", Location = new Point(306, 118), AutoSize = true };
+            TemaHefesto.Terciario(labelV2Nova);
+
+            var btnPasta = new Button { Text = "Selecionar pasta do resultado", Location = new Point(20, 152), Size = new Size(270, 30) };
+            TemaHefesto.BotaoSecundario(btnPasta);
+            btnPasta.Click += (s, e) =>
+            {
+                string caminho = SelecionaPasta();
+                if (caminho == null) return;
+                caminhoV2Saida = caminho;
+                labelV2Pasta.Text = NomePasta(caminho);
+            };
+
+            labelV2Pasta = new Label { Text = "Nenhuma pasta selecionada", Location = new Point(306, 158), AutoSize = true };
+            TemaHefesto.Terciario(labelV2Pasta);
+
+            var lblNome = new Label { Text = "Nome do arquivo:", Location = new Point(20, 204), AutoSize = true };
+            TemaHefesto.Rotulo(lblNome);
+
+            textBoxV2Nome = new TextBox { Text = "Comparacao", Location = new Point(160, 201), Size = new Size(240, 24) };
+            TemaHefesto.Campo(textBoxV2Nome);
+
+            checkBoxV2Txt = new CheckBox { Text = "txt", Checked = true, Location = new Point(420, 202), AutoSize = true };
+            TemaHefesto.CheckTema(checkBoxV2Txt);
+
+            checkBoxV2Html = new CheckBox { Text = "HTML", Checked = true, Location = new Point(490, 202), AutoSize = true };
+            TemaHefesto.CheckTema(checkBoxV2Html);
+
+            var btnComparar = new Button { Text = "Comparar", Location = new Point(20, 244), Size = new Size(270, 44) };
+            TemaHefesto.BotaoPrimario(btnComparar);
+            btnComparar.Click += (s, e) => CompararListasV2();
+
+            labelV2Status = new Label { Text = "", Location = new Point(20, 300), Size = new Size(820, 60), AutoSize = false };
+            TemaHefesto.Terciario(labelV2Status);
+
+            pagina.Controls.Add(instrucoes);
+            pagina.Controls.Add(btnOriginal);
+            pagina.Controls.Add(labelV2Original);
+            pagina.Controls.Add(btnNova);
+            pagina.Controls.Add(labelV2Nova);
+            pagina.Controls.Add(btnPasta);
+            pagina.Controls.Add(labelV2Pasta);
+            pagina.Controls.Add(lblNome);
+            pagina.Controls.Add(textBoxV2Nome);
+            pagina.Controls.Add(checkBoxV2Txt);
+            pagina.Controls.Add(checkBoxV2Html);
+            pagina.Controls.Add(btnComparar);
+            pagina.Controls.Add(labelV2Status);
+
+            // Logo após a aba antiga, para ficar fácil comparar as duas.
+            tabControlPrincipal.TabPages.Insert(1, pagina);
+        }
+
+        private void CompararListasV2()
+        {
+            if (string.IsNullOrWhiteSpace(caminhoV2Original) || string.IsNullOrWhiteSpace(caminhoV2Nova))
+            {
+                MessageBox.Show("Selecione as duas listas (Original e Nova).");
+                return;
+            }
+
+            if (!checkBoxV2Txt.Checked && !checkBoxV2Html.Checked)
+            {
+                MessageBox.Show("Marque pelo menos uma saída: txt ou HTML.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(caminhoV2Saida))
+            {
+                MessageBox.Show("Selecione a pasta para salvar o resultado.");
+                return;
+            }
+
+            string nome = string.IsNullOrWhiteSpace(textBoxV2Nome.Text) ? "Comparacao" : textBoxV2Nome.Text.Trim();
+            string caminhoBase = Path.Combine(caminhoV2Saida, nome);
+
+            try
+            {
+                UseWaitCursor = true;
+
+                ResultadoComparacaoV2 resultado = new ComparadorListasV2().Comparar(caminhoV2Original, caminhoV2Nova);
+
+                var gerados = new List<string>();
+
+                if (checkBoxV2Txt.Checked)
+                    gerados.Add(ArquivosRelatorioV2.EscreverTxt(caminhoBase, resultado));
+
+                if (checkBoxV2Html.Checked)
+                {
+                    TextoLista textoOriginal = RenderizadorListaParaTexto.Obter(caminhoV2Original);
+                    TextoLista textoNova = RenderizadorListaParaTexto.Obter(caminhoV2Nova);
+
+                    string html = ArquivosRelatorioV2.EscreverHtml(caminhoBase, resultado, textoOriginal, textoNova);
+                    gerados.Add(html);
+
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(html) { UseShellExecute = true });
+                }
+
+                ResumoComparacao resumo = resultado.Resumo();
+
+                labelV2Status.ForeColor = TemaHefesto.Accent;
+                labelV2Status.Text = $"Concluído: {resumo.PosicoesAlteradas} alteradas, {resumo.MaterialTrocado} com material trocado, " +
+                                     $"{resumo.PosicoesNovas} novas, {resumo.PosicoesEliminadas} eliminadas." +
+                                     Environment.NewLine + string.Join("  |  ", gerados.Select(Path.GetFileName));
+            }
+            catch (Exception ex)
+            {
+                labelV2Status.ForeColor = Color.Firebrick;
+                labelV2Status.Text = "Erro ao comparar as listas.";
+                MessageBox.Show($"Erro ao comparar listas: {ex.Message}");
+            }
+            finally
+            {
+                UseWaitCursor = false;
+            }
         }
 
         // =====================================================================
@@ -262,6 +439,168 @@ namespace ComparadorListasDeMateriais
             {
                 UseWaitCursor = false;
             }
+        }
+
+        // =====================================================================
+        //  Aba: Renomear Arquivos  — troca em lote de um trecho do nome dos arquivos
+        // =====================================================================
+
+        private List<string> arquivosRenomear;
+        private Label labelArquivosRenomear;
+        private TextBox textBoxRenProcurar;
+        private TextBox textBoxRenSubstituir;
+        private Label labelRenStatus;
+
+        /// <summary>
+        /// Monta, em código, a aba que renomeia vários arquivos trocando um trecho do nome por outro
+        /// (ex.: procurar "-0B" e substituir por ".0B" transforma "AAAAA-0B.pdf" em "AAAAA.0B.pdf").
+        /// </summary>
+        private void MontarAbaRenomear()
+        {
+            var pagina = new TabPage("Renomear Arquivos") { BackColor = TemaHefesto.FundoJanela };
+
+            var instrucoes = new Label
+            {
+                Text = "Renomeia em lote os arquivos selecionados, trocando um trecho do nome por outro. " +
+                       "Selecione os arquivos, informe o texto a procurar e o texto para substituir e clique em Executar. " +
+                       "Ex.: procurar \"-0B\" e substituir por \".0B\" transforma \"AAAAA-0B.pdf\" em \"AAAAA.0B.pdf\".",
+                Location = new Point(20, 16),
+                Size = new Size(820, 46),
+                AutoSize = false
+            };
+            Descricao(instrucoes);
+
+            var btnSelecionar = new Button { Text = "Selecionar arquivos", Location = new Point(20, 72), Size = new Size(270, 30) };
+            TemaHefesto.BotaoSecundario(btnSelecionar);
+            btnSelecionar.Click += (s, e) =>
+            {
+                List<string> selecionados = SelecionaArquivos();
+                if (selecionados == null) return;
+                arquivosRenomear = selecionados;
+                labelArquivosRenomear.Text = $"{arquivosRenomear.Count} arquivo(s) selecionado(s)";
+            };
+
+            labelArquivosRenomear = new Label { Text = "Nenhum arquivo selecionado", Location = new Point(306, 78), AutoSize = true };
+            TemaHefesto.Terciario(labelArquivosRenomear);
+
+            var lblProcurar = new Label { Text = "Procurar no nome:", Location = new Point(20, 124), AutoSize = true };
+            TemaHefesto.Rotulo(lblProcurar);
+            textBoxRenProcurar = new TextBox { Location = new Point(160, 121), Size = new Size(240, 24) };
+            TemaHefesto.Campo(textBoxRenProcurar);
+
+            var lblSubstituir = new Label { Text = "Substituir por:", Location = new Point(20, 159), AutoSize = true };
+            TemaHefesto.Rotulo(lblSubstituir);
+            textBoxRenSubstituir = new TextBox { Location = new Point(160, 156), Size = new Size(240, 24) };
+            TemaHefesto.Campo(textBoxRenSubstituir);
+
+            var btnExecutar = new Button { Text = "Executar", Location = new Point(20, 200), Size = new Size(270, 44) };
+            TemaHefesto.BotaoPrimario(btnExecutar);
+            btnExecutar.Click += (s, e) => ExecutarRenomear();
+
+            labelRenStatus = new Label { Text = "", Location = new Point(20, 260), Size = new Size(820, 60), AutoSize = false };
+            TemaHefesto.Terciario(labelRenStatus);
+
+            pagina.Controls.Add(instrucoes);
+            pagina.Controls.Add(btnSelecionar);
+            pagina.Controls.Add(labelArquivosRenomear);
+            pagina.Controls.Add(lblProcurar);
+            pagina.Controls.Add(textBoxRenProcurar);
+            pagina.Controls.Add(lblSubstituir);
+            pagina.Controls.Add(textBoxRenSubstituir);
+            pagina.Controls.Add(btnExecutar);
+            pagina.Controls.Add(labelRenStatus);
+
+            tabControlPrincipal.TabPages.Add(pagina);
+        }
+
+        private void ExecutarRenomear()
+        {
+            if (arquivosRenomear == null || arquivosRenomear.Count == 0)
+            {
+                MessageBox.Show("Selecione os arquivos que deseja renomear.");
+                return;
+            }
+
+            string procurar = textBoxRenProcurar.Text;
+            string substituir = textBoxRenSubstituir.Text ?? string.Empty;
+
+            if (string.IsNullOrEmpty(procurar))
+            {
+                MessageBox.Show("Informe o texto a procurar no nome dos arquivos.");
+                return;
+            }
+
+            int renomeados = 0, semAlteracao = 0, erros = 0;
+            var detalhesErro = new List<string>();
+            var novosCaminhos = new List<string>();
+
+            foreach (string caminho in arquivosRenomear)
+            {
+                string nomeAtual = Path.GetFileName(caminho);
+                try
+                {
+                    if (!File.Exists(caminho))
+                    {
+                        erros++;
+                        detalhesErro.Add($"{nomeAtual}: arquivo não encontrado");
+                        continue;
+                    }
+
+                    if (!nomeAtual.Contains(procurar))
+                    {
+                        semAlteracao++;
+                        novosCaminhos.Add(caminho);
+                        continue;
+                    }
+
+                    string nomeNovo = nomeAtual.Replace(procurar, substituir);
+
+                    if (string.IsNullOrWhiteSpace(nomeNovo))
+                    {
+                        erros++;
+                        detalhesErro.Add($"{nomeAtual}: nome resultante vazio");
+                        continue;
+                    }
+
+                    string pasta = Path.GetDirectoryName(caminho);
+                    string caminhoNovo = Path.Combine(pasta, nomeNovo);
+
+                    if (string.Equals(caminhoNovo, caminho, StringComparison.OrdinalIgnoreCase))
+                    {
+                        semAlteracao++;
+                        novosCaminhos.Add(caminho);
+                        continue;
+                    }
+
+                    if (File.Exists(caminhoNovo))
+                    {
+                        erros++;
+                        detalhesErro.Add($"{nomeAtual} -> {nomeNovo}: já existe um arquivo com esse nome");
+                        continue;
+                    }
+
+                    File.Move(caminho, caminhoNovo);
+                    renomeados++;
+                    novosCaminhos.Add(caminhoNovo);
+                }
+                catch (Exception ex)
+                {
+                    erros++;
+                    detalhesErro.Add($"{nomeAtual}: {ex.Message}");
+                }
+            }
+
+            // Atualiza a seleção para os novos caminhos (permite executar de novo sem reselecionar).
+            arquivosRenomear = novosCaminhos;
+
+            labelRenStatus.ForeColor = erros > 0 ? Color.Firebrick : TemaHefesto.Accent;
+            labelRenStatus.Text = $"Concluído: {renomeados} renomeado(s), {semAlteracao} sem alteração, {erros} com erro.";
+
+            string msg = $"{renomeados} arquivo(s) renomeado(s).";
+            if (semAlteracao > 0) msg += $"\n{semAlteracao} sem o texto procurado (inalterado).";
+            if (erros > 0) msg += $"\n{erros} com erro:\n" + string.Join("\n", detalhesErro.Take(10));
+
+            MessageBox.Show(msg);
         }
 
         /// <summary>
@@ -485,12 +824,28 @@ namespace ComparadorListasDeMateriais
             }
         }
 
+        /// <summary>Abre o diálogo permitindo selecionar vários arquivos; devolve null se cancelado.</summary>
+        private List<string> SelecionaArquivos()
+        {
+            using (var openFileDialog = new OpenFileDialog { Multiselect = true })
+            {
+                return openFileDialog.ShowDialog() == DialogResult.OK
+                    ? new List<string>(openFileDialog.FileNames)
+                    : null;
+            }
+        }
+
+        /// <summary>
+        /// Abre o seletor de pasta; devolve null se cancelado.
+        /// <para>
+        /// Delega para <see cref="SeletorPasta"/>, que usa o diálogo moderno do Explorer — o mesmo
+        /// visual do <see cref="OpenFileDialog"/> usado para escolher as listas. Antes aqui havia um
+        /// <c>FolderBrowserDialog</c> direto, que destoava.
+        /// </para>
+        /// </summary>
         private string SelecionaPasta()
         {
-            using (var folderBrowserDialog = new FolderBrowserDialog())
-            {
-                return folderBrowserDialog.ShowDialog() == DialogResult.OK ? folderBrowserDialog.SelectedPath : null;
-            }
+            return SeletorPasta.Selecionar(this, "Selecionar pasta");
         }
 
         /// <summary>

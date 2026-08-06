@@ -42,7 +42,7 @@ agregação de quantidades entre estruturas; qualquer mudança no parse de txt/E
 | D3 | Caso ambíguo não é pareado; vai para uma seção "Revisar manualmente" | O programa não deve adivinhar qual peça virou qual |
 | D4 | Saídas: TXT novo + HTML. Sem Excel | Escolha do usuário |
 | D5 | Diff lado a lado sobre as **listas cruas**, dentro do relatório HTML | Escolha do usuário |
-| D6 | `SelecionaPasta()` passa a usar `OpenFolderDialog` **no app inteiro** | É um helper único usado por todas as abas; mudança puramente visual |
+| D6 | `SelecionaPasta()` passa a usar o diálogo moderno do shell **no app inteiro** | É um helper único usado por todas as abas; mudança puramente visual |
 | D7 | TXT escrito em UTF-8 **com BOM** | Garante acentos e box-drawing corretos em qualquer editor |
 
 ## Arquitetura
@@ -148,10 +148,11 @@ A propriedade antiga fica como está (a aba antiga não é tocada).
 ────────────────────────────────────────────────────────────────────────────────
 
   Estruturas comparadas .......  12      Posições novas ..............   7
-  Posições conferidas .........  446     Posições eliminadas .........   3
+  Posições conferidas .........  447     Posições eliminadas .........   3
   Posições iguais .............  418     Estruturas só na original ...   1
   Posições alteradas ..........  23      Estruturas só na nova .......   0
   Material trocado ............   5      Revisar manualmente .........   1
+  Diferenças pequenas .........   1
 
   >> 39 posições precisam de atenção nesta comparação.
 
@@ -210,9 +211,10 @@ Sem isso os números do resumo ficam ambíguos.
 
 | Contador | Definição |
 |---|---|
-| Posições conferidas | Total de pares formados (exatos + material trocado). No exemplo: 418 + 23 + 5 = 446 |
-| Posições iguais | Pares sem nenhuma divergência |
+| Posições conferidas | Total de pares formados (exatos + material trocado). No exemplo: 418 + 23 + 1 + 5 = 447 |
+| Posições iguais | Pares **exatos** sem nenhuma divergência |
 | Posições alteradas | Pares **exatos** com pelo menos uma divergência de `NcOuMelhoria = true` |
+| Diferenças pequenas | Pares **exatos** cuja única diferença é ≤ 2 mm |
 | Material trocado | Pares formados por chave base (`65H → 65G`), tendo ou não outras divergências |
 | Posições novas / eliminadas | Sobras não pareadas, incluindo as que estão em grupos ambíguos |
 | Revisar manualmente | Quantidade de **grupos** ambíguos (não de posições dentro deles) |
@@ -275,10 +277,18 @@ igual à aba "Diff CAM (HTML)" faz hoje (`Form1.cs:250`).
 
 ## Diálogo de pasta (requisito 3)
 
-`Form1.SelecionaPasta()` (`Form1.cs:662`) troca `FolderBrowserDialog` por
-`System.Windows.Forms.OpenFolderDialog`, disponível a partir do .NET 8 — o projeto
-já é `net8.0-windows`. É o mesmo diálogo estilo Explorer do `OpenFileDialog`,
-com barra de locais, caminho digitável e busca.
+`Form1.SelecionaPasta()` deixa de instanciar `FolderBrowserDialog` e passa a
+delegar para `UI/SeletorPasta.cs`, que abre o diálogo moderno do Explorer — o
+mesmo visual do `OpenFileDialog`, com barra de locais, caminho digitável e busca.
+
+**Correção em relação ao design original:** o `OpenFolderDialog` do WinForms é
+do **.NET 9**, não do .NET 8 (isso estava errado aqui e só apareceu na
+compilação). Subir o alvo para `net9.0-windows` obrigaria todas as máquinas da
+equipe a instalar outro runtime, o que está fora do escopo. Então `SeletorPasta`
+faz o mesmo que o `OpenFolderDialog` faz por dentro: `IFileOpenDialog` do shell
+com a flag `FOS_PICKFOLDERS`, via COM. Se a chamada COM falhar por qualquer
+motivo (Windows antigo, política de sistema), cai no `FolderBrowserDialog` de
+antes, então o programa nunca fica sem seletor.
 
 Como o helper é único e usado por todas as abas, a correção vale para o app
 inteiro. É mudança puramente visual, sem efeito em lógica de comparação.
