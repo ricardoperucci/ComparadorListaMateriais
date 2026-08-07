@@ -307,6 +307,13 @@ namespace ComparadorListasDeMateriais
         }
         public static bool VerificaCaracteresCertos(string pTextoLido)
         {
+            // Ao decodificar bytes inválidos, o .NET não escreve "?" — ele insere o caractere de
+            // substituição U+FFFD ('�'). Sem esta verificação, uma lista ANSI cujo texto não
+            // contenha "cabeça"/"extensão" (por exemplo "PÁRA-RAIOS EM SUSPENSÃO") passava pela
+            // heurística já corrompida, porque as palavras especiais abaixo não a alcançavam.
+            if (pTextoLido.IndexOf('�') >= 0)
+                return false;
+
             if ((pTextoLido.ToLower().Contains("extens") && !pTextoLido.ToLower().Contains("extensão") && !pTextoLido.ToLower().Contains("extensao")) ||
                 (pTextoLido.ToLower().Contains("cabe") && !pTextoLido.ToLower().Contains("cabeça") && !pTextoLido.ToLower().Contains("cabeca")) ||
                 pTextoLido.Contains("Ã£") || pTextoLido.Contains("?"))

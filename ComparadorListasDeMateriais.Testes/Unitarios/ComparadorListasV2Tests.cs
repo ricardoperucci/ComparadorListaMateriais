@@ -1,5 +1,6 @@
 using ComparadorListasDeMateriais.ComparadorV2;
 using ComparadorListasDeMateriais.ObjetosLista;
+using ComparadorListasDeMateriais.ObjetosResultados;
 using ComparadorListasDeMateriais.ObjetosResultados.ObjetosDivergencias;
 using ComparadorListasDeMateriais.Testes.Infra;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -145,6 +146,24 @@ namespace ComparadorListasDeMateriais.Testes.Unitarios
                 resumo.PosicoesConferidas,
                 resumo.PosicoesIguais + resumo.PosicoesAlteradas + resumo.SomenteDiferencasPequenas + resumo.MaterialTrocado,
                 "os pares têm que se distribuir exatamente entre as quatro categorias");
+        }
+
+        [TestMethod]
+        public void Comparar_VariasDivergencias_PerfilVemAntesDoComprimento()
+        {
+            // O motor de comparação produz o comprimento primeiro; a v2 reordena para leitura.
+            ResultadoComparacaoV2 resultado = new ComparadorListasV2().Comparar(
+                ConstrutoresTeste.Estrutura("01-CABECA", ConstrutoresTeste.Cantoneira("70H", 1000, 50, 4.75, "H")),
+                ConstrutoresTeste.Estrutura("01-CABECA", ConstrutoresTeste.Cantoneira("70H", 1400, 65, 6.35, "H")));
+
+            List<ErroPosicao> divergencias = resultado.Estruturas.Single().Alteradas.Single().Divergencias;
+
+            int perfil = divergencias.FindIndex(x => x.TipoErroEnum == EnumErrosPosicao.PerfilCantoneira);
+            int comprimento = divergencias.FindIndex(x => x.TipoErroEnum == EnumErrosPosicao.Comprimento);
+
+            Assert.IsTrue(perfil >= 0, "o teste precisa produzir uma divergência de perfil");
+            Assert.IsTrue(comprimento >= 0, "o teste precisa produzir uma divergência de comprimento");
+            Assert.IsTrue(perfil < comprimento, "perfil tem que aparecer antes do comprimento");
         }
 
         [TestMethod]

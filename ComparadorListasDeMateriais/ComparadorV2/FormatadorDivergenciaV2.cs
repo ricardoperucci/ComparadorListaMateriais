@@ -89,6 +89,39 @@ namespace ComparadorListasDeMateriais.ComparadorV2
             }
         }
 
+        /// <summary>
+        /// Ordem de exibição das divergências: primeiro o que a peça é (tipo, perfil, material),
+        /// depois as dimensões, depois quantidades e detalhes de fabricação.
+        /// <para>
+        /// A ordem em que o motor de comparação produz os erros é outra — lá o comprimento sai antes
+        /// do perfil, o que na leitura fica ao contrário: quem confere quer ver primeiro que o perfil
+        /// mudou, e só então o quanto o comprimento mudou.
+        /// </para>
+        /// </summary>
+        public static int Ordem(ErroPosicao pErro)
+        {
+            switch (pErro.TipoErroEnum)
+            {
+                case EnumErrosPosicao.PecasDiferentes: return 1;
+                case EnumErrosPosicao.PerfilCantoneira: return 2;
+                case EnumErrosPosicao.Material: return 3;
+                case EnumErrosPosicao.Espessura: return 4;
+                case EnumErrosPosicao.Largura: return 5;
+                case EnumErrosPosicao.Comprimento: return 6;
+                case EnumErrosPosicao.DiametroCalota: return 7;
+                case EnumErrosPosicao.DiametroFuroCalota: return 8;
+                case EnumErrosPosicao.RaioUsinagemCalota: return 9;
+                case EnumErrosPosicao.Quantidade: return 10;
+                case EnumErrosPosicao.Recortes: return 11;
+                case EnumErrosPosicao.Dobras: return 12;
+                case EnumErrosPosicao.Chanfros: return 13;
+                case EnumErrosPosicao.Degrau: return 14;
+                case EnumErrosPosicao.DireitaEsquerda: return 15;
+                case EnumErrosPosicao.ConjuntoSoldado: return 16;
+                default: return 99;
+            }
+        }
+
         /// <summary>Linha compacta de uma divergência: "Comprimento 1250,0 → 1268,0 (+18,0 mm)".</summary>
         public static string LinhaCompacta(ErroPosicao pErro)
         {

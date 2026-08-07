@@ -112,7 +112,9 @@ namespace ComparadorListasDeMateriais.ComparadorV2
                 Tipo = pPar.Tipo
             };
 
-            foreach (ErroPosicao erro in erros)
+            // Ordenado para leitura (perfil antes de comprimento), não na ordem em que o motor
+            // de comparação encontrou os erros. Ver FormatadorDivergenciaV2.Ordem.
+            foreach (ErroPosicao erro in erros.OrderBy(FormatadorDivergenciaV2.Ordem))
             {
                 // No par por troca de material o cabeçalho já mostra "65H → 65G"; repetir uma linha
                 // "Material" logo abaixo seria dizer a mesma coisa duas vezes.
